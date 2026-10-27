@@ -1,0 +1,592 @@
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top"><span class="brand-mark">lim</span>函数极限实验室</a>
+    <nav class="toc" aria-label="章节导航">
+      <a href="#scope">显微镜</a>
+      <a href="#ed">ε–δ</a>
+      <a href="#heine">Heine</a>
+      <a href="#cauchy">Cauchy</a>
+      <a href="#map">关系图</a>
+      <a href="#practice">Practice</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="scope">
+  <p class="eyebrow">数学分析 · 函数极限 · 交互实验</p>
+  <h1><span class="lim">lim</span>函数极限实验室</h1>
+  <p class="hero-sub">from intuition to rigorous proof</p>
+  <p class="lede">把 ε–δ 定义、Heine 归结原理与 Cauchy 准则放进同一组图像里。拖动误差带、自由缩放、亲手构造数列、和电脑对弈——自己发现三种说法为什么等价，以及各自擅长证明什么。</p>
+
+  <div class="scope" aria-label="极限显微镜">
+    <div class="scope-bar">
+      <strong style="font-family:var(--f-display)">极限显微镜</strong>
+      <div class="zoom">
+        <label for="scope-k" class="muted" style="font-size:var(--t-sm);white-space:nowrap">放大</label>
+        <input type="range" id="scope-k" min="0" max="7" step="0.01" value="0.2" aria-label="放大倍数（对数刻度）">
+        <span class="zoom-read">视窗 |x| &lt; <span id="scope-w">—</span></span>
+      </div>
+      <button class="btn" id="scope-play" type="button">▶ 自动放大</button>
+    </div>
+    <div class="scope-lenses">
+      <div class="lens">
+        <div class="lens-head"><span class="fx">$f(x)=\sin\dfrac1x$</span><span class="lens-read">视窗内振幅 ω = <span id="scope-om-l">—</span></span></div>
+        <canvas id="scope-l" aria-label="sin(1/x) 在 0 附近的图像"></canvas>
+        <span class="lens-verdict" id="scope-v-l">—</span>
+      </div>
+      <div class="lens">
+        <div class="lens-head"><span class="fx">$g(x)=x\sin\dfrac1x$</span><span class="lens-read">视窗内振幅 ω = <span id="scope-om-r">—</span></span></div>
+        <canvas id="scope-r" aria-label="x·sin(1/x) 在 0 附近的图像"></canvas>
+        <span class="lens-verdict" id="scope-v-r">—</span>
+      </div>
+    </div>
+    <p class="scope-cap">两边横轴同步放大、纵轴固定在 $[-1.3,\,1.3]$，琥珀色带是 $|y|&lt;\varepsilon=0.25$。右边：视窗缩到 $|x|&lt;0.25$ 以内，整段曲线就被锁进这条带（变绿），因为 $|x\sin\frac1x|\le|x|$。左边：无论放大多少倍，图像都铺满 $[-1,1]$，永远装不进去。<strong>“极限为 $A$”就是：足够靠近 $a$ 时，函数值被锁进以 $A$ 为中心、任意窄的水平带。</strong>下面三章给这句话三种严格说法。</p>
+  </div>
+
+  <div class="lenses3">
+    <a class="lens3" href="#ed" style="--k:var(--eps)">
+      <span class="k-sym">∀ε ∃δ</span>
+      <h3>ε–δ 定义</h3>
+      <p>对手给误差 ε，你找范围 δ。量词次序决定了谁先出招。</p>
+      <span class="use">最适合：已经知道（或猜到）极限值 A 时证明存在</span>
+    </a>
+    <a class="lens3" href="#heine" style="--k:var(--seq-a)">
+      <span class="k-sym">{xₙ} → a</span>
+      <h3>Heine 归结原理</h3>
+      <p>用数列当探针：所有逼近 a 的路径都必须得到同一个结论。</p>
+      <span class="use">最适合：证明极限不存在；把数列结论搬到函数上</span>
+    </a>
+    <a class="lens3" href="#cauchy" style="--k:var(--cau)">
+      <span class="k-sym">|f(x′) − f(x″)|</span>
+      <h3>Cauchy 准则</h3>
+      <p>不提 A，只比较函数值彼此之间是否越来越接近。</p>
+      <span class="use">最适合：不知道极限值时判断存在性；不存在性的反证</span>
+    </a>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 1: ε–δ ================= -->
+<section class="chapter ch-ed" id="ed">
+  <div class="chap-head">
+    <span class="chap-sym">∀ε ∃δ</span>
+    <div><p class="eyebrow">第 1 章</p><h2>ε–δ 定义：一场量词博弈</h2></div>
+  </div>
+  <div class="prose">
+    <p>设 $f$ 在点 $a$ 的某个去心邻域内有定义。$\displaystyle\lim_{x\to a}f(x)=A$ 的定义是：</p>
+  </div>
+  <div class="display ed-def" id="ed-def">$$\class{q-eps}{\forall\,\varepsilon>0},\quad \class{q-delta}{\exists\,\delta>0},\quad \class{q-x}{\forall\,x:\ 0&lt;|x-a|&lt;\delta}\ \Longrightarrow\ \class{q-judge}{|f(x)-A|&lt;\varepsilon}.$$</div>
+  <div class="prose"><p>四个部分，就是一场两人游戏里的四步。点击每一步，看看是谁在出招、能看到什么信息：</p></div>
+
+  <div class="qgame">
+    <div class="qrow" id="q-row">
+      <button class="qchip adv" type="button" data-q="eps" aria-pressed="false"><span class="who">① 对手</span><span>$\forall\varepsilon>0$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip you" type="button" data-q="delta" aria-pressed="false"><span class="who">② 你</span><span>$\exists\delta>0$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip adv" type="button" data-q="x" aria-pressed="false"><span class="who">③ 对手</span><span>$\forall x,\ 0&lt;|x-a|&lt;\delta$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip judge" type="button" data-q="judge" aria-pressed="false"><span class="who">④ 判定</span><span>$|f(x)-A|&lt;\varepsilon$</span></button>
+    </div>
+    <div class="qexplain" id="q-explain" aria-live="polite">
+      <div data-q="intro">把“$\lim f=A$ 为真”读成：<strong>你有必胜策略</strong>——不论对手怎样出招，你都能赢。点上面任何一步查看说明。</div>
+      <div data-q="eps" hidden><strong>对手先出招。</strong>$\varepsilon$ 是允许的误差，由对手任意指定。你不能挑 $\varepsilon$，必须准备好应对每一个 $\varepsilon$——真正的考验在 $\varepsilon$ 很小的时候。</div>
+      <div data-q="delta" hidden><strong>你看到 $\varepsilon$ 之后再选 $\delta$。</strong>因为 $\exists\delta$ 写在 $\forall\varepsilon$ 之后，$\delta$ 可以依赖 $\varepsilon$，常写作 $\delta(\varepsilon)$。证明里那句“取 $\delta=\min\{1,\varepsilon/5\}$”，就是在写下你的应对策略。</div>
+      <div data-q="x" hidden><strong>对手在去心邻域里任挑 $x$。</strong>条件 $0&lt;|x-a|$ 排除了 $x=a$：极限只关心 $a$ <em>附近</em>的值，与 $f(a)$ 是多少、甚至 $f(a)$ 有没有定义都无关。</div>
+      <div data-q="judge" hidden><strong>判定胜负。</strong>若 $|f(x)-A|&lt;\varepsilon$，你赢这一局。命题成立 ⇔ 对<em>每一个</em> $\varepsilon$ 你都有办法赢——你的 $\delta(\varepsilon)$ 就是“必胜策略”。</div>
+    </div>
+    <div class="qswap">
+      <div class="qswap-row">
+        <button class="btn" type="button" id="q-swap" aria-expanded="false">⇄ 如果交换前两个量词？</button>
+        <span class="muted" style="font-size:var(--t-sm)">次序不是装饰——交换后命题完全变了</span>
+      </div>
+      <div class="qswap-body" id="q-swap-body" hidden>
+        <div class="display">$$\exists\,\delta>0,\ \forall\,\varepsilon>0,\ \forall x:\ 0&lt;|x-a|&lt;\delta\ \Longrightarrow\ |f(x)-A|&lt;\varepsilon.$$</div>
+        <p>现在你必须<strong>先</strong>选 $\delta$，而且这一个 $\delta$ 要同时对付所有 $\varepsilon$。对固定的 $x$，“对所有 $\varepsilon>0$ 都有 $|f(x)-A|&lt;\varepsilon$”只能意味着 $f(x)=A$。所以交换后的命题说的是：<strong>$f$ 在 $a$ 的某个去心邻域内恒等于 $A$</strong>。这比“极限为 $A$”强得多：$\lim_{x\to2}x^2=4$ 成立，交换后的命题却不成立。教训：$\delta$ 能依赖 $\varepsilon$，正是因为 $\exists\delta$ 写在 $\forall\varepsilon$ 之后。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.2 lab -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.2</span><h3>ε–δ 盒子：亲手当一回对手和证明者</h3></div>
+    <div class="prose"><p>琥珀色水平带是 $|y-A|&lt;\varepsilon$，青色竖带是 $0&lt;|x-a|&lt;\delta$。δ 带内的曲线全部落进 ε 带时显示为绿色——这个 $\delta$ 合格；一旦有一段变红，对手就抓到了反例。图上的虚线可以直接拖动。</p></div>
+    <div class="lab" id="ed-lab">
+      <div class="lab-head"><h4>实验台 1 · ε–δ 盒子</h4><p>三种模式：自由探索；<strong>你来证明</strong>（电脑出 ε，你选 δ）；<strong>你来反驳</strong>（你选 ε₀，电脑出 δ，你在图上点出反例 x）。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="ed-canvas" aria-label="ε–δ 盒子图像，可缩放平移"></canvas>
+          <div class="plot-tools" id="ed-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准 δ 窗口" title="对准 δ 窗口">⌖</button>
+            <button type="button" data-z="home" aria-label="复位视图" title="复位">⟲</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数</span>
+            <div class="chips" id="ed-fns">
+              <button class="chip" type="button" data-v="sq">$x^2$</button>
+              <button class="chip" type="button" data-v="hole">$\frac{x^2-1}{x-1}$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+            </div>
+            <div class="formula-line" id="ed-formula">
+              <span data-k="sq">$\displaystyle\lim_{x\to 2}x^2\overset{?}{=}A$</span>
+              <span data-k="hole" hidden>$\displaystyle\lim_{x\to 1}\frac{x^2-1}{x-1}\overset{?}{=}A$</span>
+              <span data-k="sinc" hidden>$\displaystyle\lim_{x\to 0}\frac{\sin x}{x}\overset{?}{=}A$</span>
+              <span data-k="xsin" hidden>$\displaystyle\lim_{x\to 0}x\sin\frac1x\overset{?}{=}A$</span>
+              <span data-k="sgn" hidden>$\displaystyle\lim_{x\to 0}\operatorname{sgn}x\overset{?}{=}A$</span>
+              <span data-k="sin1x" hidden>$\displaystyle\lim_{x\to 0}\sin\frac1x\overset{?}{=}A$</span>
+            </div>
+          </div>
+          <div class="seg" id="ed-modes" role="group" aria-label="模式">
+            <button type="button" data-v="free" aria-pressed="true">自由探索</button>
+            <button type="button" data-v="prove" aria-pressed="false">你来证明</button>
+            <button type="button" data-v="refute" aria-pressed="false">你来反驳</button>
+          </div>
+          <div class="grp">
+            <label class="sl"><span class="sl-name">候选极限 <i class="m">A</i></span><output id="ed-A-out">—</output><input type="range" id="ed-A" min="0" max="1" step="0.0005"></label>
+            <label class="sl eps"><span class="sl-name">误差 <i class="m">ε</i>（对数刻度）</span><output id="ed-eps-out">—</output><input type="range" id="ed-eps"></label>
+            <label class="sl delta"><span class="sl-name">范围 <i class="m">δ</i>（对数刻度）</span><output id="ed-delta-out">—</output><input type="range" id="ed-delta"></label>
+            <div class="btns">
+              <button class="btn sm" type="button" id="ed-snapA">A = 真实极限</button>
+              <label class="check"><input type="checkbox" id="ed-follow"> 视窗跟随 δ</label>
+              <label class="check"><input type="checkbox" id="ed-showmax" checked> 显示最大可行 δ</label>
+            </div>
+          </div>
+          <div class="status" id="ed-status" aria-live="polite"></div>
+          <div class="game" id="ed-game" hidden></div>
+        </div>
+      </div>
+      <div class="plot-foot"><span>点击图像激活后：<kbd>滚轮</kbd> 缩放 · <kbd>Shift</kbd>+滚轮 只缩放横轴 · 拖动平移 · 双指捏合缩放</span><span>“数值检验”在去心邻域内取约 3200 个点，并加入函数的已知极值点</span></div>
+    </div>
+    <div class="note"><span class="tag info">观察</span><div>选 $\sin\frac1x$ 并把 $\delta$ 拖到极小：δ 带里永远有完整的振荡，反例永远存在。再试 $\varepsilon>1+|A|$：任何 $\delta$ 都合格——<strong>大 ε 总是容易的，定义的分量全在“任意小的 ε”上</strong>。</div></div>
+  </div>
+
+  <!-- 1.3 negation -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.3</span><h3>机械地写出否定</h3></div>
+    <div class="prose"><p>要证明“极限不是 $A$”，需要先把定义的否定写对。规则只有两条：$\neg\forall=\exists\neg$，$\neg\exists=\forall\neg$；最后 $\neg(P\Rightarrow Q)\equiv P\wedge\neg Q$。一步一步推：</p></div>
+    <div class="stepper" id="neg">
+      <div class="step-stage">
+        <div class="st">$$\class{neg}{\neg}\Big[\forall\varepsilon>0\ \exists\delta>0\ \forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\class{neg}{\exists\varepsilon>0\ \neg}\Big[\exists\delta>0\ \forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\exists\varepsilon>0\ \class{neg}{\forall\delta>0\ \neg}\Big[\forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\exists\varepsilon>0\ \forall\delta>0\ \class{neg}{\exists x\ \neg}\big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)$$</div>
+        <div class="st">$$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x:\ \class{keep}{0&lt;|x-a|&lt;\delta}\ \ \text{且}\ \ \class{neg}{|f(x)-A|\ge\varepsilon_0}$$</div>
+      </div>
+      <div class="step-rule" id="neg-rule" aria-live="polite"></div>
+      <div class="step-nav">
+        <button class="btn" type="button" id="neg-prev">← 上一步</button>
+        <button class="btn primary" type="button" id="neg-next">下一步 →</button>
+        <div class="dots" id="neg-dots"></div>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="note"><span class="tag">易错</span><div>否定之后，$x$ 的条件 $0&lt;|x-a|&lt;\delta$ <strong>原样保留</strong>（反例必须取在去心邻域里），只有结论 $|f(x)-A|&lt;\varepsilon$ 变成 $\ge$。写成 “$|x-a|\ge\delta$” 是最常见的错误。</div></div>
+      <div class="note"><span class="tag">易错</span><div>要证明“极限<strong>不存在</strong>”，必须对<strong>每一个</strong> $A$ 都完成上面的论证：$\forall A\in\mathbb R\ \exists\varepsilon_0\ \forall\delta\ \exists x\cdots$。直接这样写很笨重——第 3 章的 Cauchy 准则能把 $A$ 消掉。</div></div>
+    </div>
+  </div>
+
+  <!-- 1.4 recipe -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.4</span><h3>从草稿到证明：写出你的 δ(ε) 配方</h3></div>
+    <div class="prose"><p>在 1.2 里赢几局不算证明：证明需要一个对<strong>每个</strong> $\varepsilon$ 都有效的公式 $\delta(\varepsilon)$。写出你的配方，电脑会在 $\varepsilon\in[10^{-6},10^{3}]$ 上取 360 个值逐一检验。右图横轴是 $\varepsilon$、纵轴是 $\delta$（都是对数刻度）；青色区域是“安全区” $\delta\le\delta_{\max}(\varepsilon)$，你的曲线必须整条待在里面。</p></div>
+    <div class="recipe" id="rc">
+      <div class="recipe-left">
+        <div class="chips" id="rc-targets">
+          <button class="chip" type="button" data-v="sq">$\lim\limits_{x\to2}x^2=4$</button>
+          <button class="chip" type="button" data-v="recip">$\lim\limits_{x\to1}\frac1x=1$</button>
+          <button class="chip" type="button" data-v="xsin">$\lim\limits_{x\to0}x\sin\frac1x=0$</button>
+        </div>
+        <div class="recipe-input">
+          <label for="rc-in">δ(ε) =</label>
+          <input class="txt" id="rc-in" type="text" spellcheck="false" autocomplete="off" value="eps/5" aria-describedby="rc-help">
+          <button class="btn primary" type="button" id="rc-go">让电脑检验</button>
+        </div>
+        <p id="rc-help" class="muted" style="font-size:var(--t-xs)">可用：eps 或 ε、min( , )、max( , )、sqrt( )、+ − * / ^、括号。例：min(1, eps/5)</p>
+        <div class="grp"><span class="grp-label">试试这些配方</span><div class="chips" id="rc-presets"></div></div>
+        <div class="scratch" id="rc-scratch"></div>
+        <div class="proof" id="rc-proof"></div>
+      </div>
+      <div class="recipe-right">
+        <div class="plot-wrap"><canvas id="rc-canvas" aria-label="δ(ε) 检验图"></canvas></div>
+        <div class="recipe-status" id="rc-status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="note"><span class="tag info">要点</span><div>$\delta$ 不唯一：安全区里的<em>任何</em>曲线都是合格的策略。$\delta_{\max}(\varepsilon)$ 往往写不出初等表达式（比如 $x\sin\frac1x$ 那条锯齿边界），证明只需要一个<strong>够用</strong>的 $\delta$。另外，数值检验只是证据；把鼠标移到正式证明的每一行，看它对应图上的哪一部分。</div></div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 2: HEINE ================= -->
+<section class="chapter ch-heine" id="heine">
+  <div class="chap-head">
+    <span class="chap-sym">{xₙ} → a</span>
+    <div><p class="eyebrow">第 2 章</p><h2>Heine 归结原理：用数列当探针</h2></div>
+  </div>
+  <div class="prose">
+    <p>函数极限说的是“$x$ 以<strong>任何方式</strong>靠近 $a$”。一个数列 $x_n\to a$ 就是一种具体的靠近方式——一条路径。归结原理说：函数极限恰好是所有路径的共同结论。</p>
+  </div>
+  <div class="theorem">
+    <p class="t-name">定理（归结原则 / Heine）</p>
+    <p>设 $f$ 在 $U^\circ(a;\delta')$ 内有定义。则 $\lim\limits_{x\to a}f(x)=A$ 的充要条件是：对任何含于 $U^\circ(a;\delta')$ 且以 $a$ 为极限的数列 $\{x_n\}$（于是 $x_n\neq a$），都有 $\lim\limits_{n\to\infty}f(x_n)=A$。</p>
+  </div>
+  <div class="cards">
+    <div class="note"><span class="tag info">用法一</span><div><strong>证明不存在。</strong>找两个数列 $x_n\to a$、$y_n\to a$（都 $\ne a$），使 $f(x_n)$、$f(y_n)$ 收敛到不同的值；或者找一个数列使 $f(x_n)$ 发散。</div></div>
+    <div class="note"><span class="tag info">用法二</span><div><strong>函数与数列互相转化。</strong>由 $\lim_{x\to0}\frac{\sin x}{x}=1$ 取 $x_n=\frac1n$，立得 $\lim_{n\to\infty}n\sin\frac1n=1$；反过来也可以把数列极限的四则运算、夹逼定理搬到函数上。</div></div>
+  </div>
+
+  <!-- 2.2 workshop -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.2</span><h3>数列工坊</h3></div>
+    <div class="prose"><p>最多同时放三个数列。上图把点 $(x_n,f(x_n))$ 画在函数图像上，下图记录 $f(x_n)$ 随 $n$ 的变化。在输入框里写关于 <code>n</code> 的任何公式，或者点“交错”把前两个数列合成 $x_1,y_1,x_2,y_2,\dots$。</p></div>
+    <div class="lab" id="hn-lab">
+      <div class="lab-head"><h4>实验台 2 · 数列工坊</h4><p>播放时视窗会追着 $x_n$ 放大。关掉“镜头跟随”就可以自由缩放、拖动。</p></div>
+      <div class="lab-body wide-panel">
+        <div class="hn-plots">
+          <div class="plot-wrap">
+            <canvas id="hn-canvas" aria-label="函数图像与数列点"></canvas>
+            <div class="plot-tools" id="hn-tools">
+              <button type="button" data-z="in" aria-label="放大">＋</button>
+              <button type="button" data-z="out" aria-label="缩小">－</button>
+              <button type="button" data-z="home" aria-label="复位视图">⟲</button>
+            </div>
+            <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+          </div>
+          <div class="plot-wrap short">
+            <canvas id="hn-vcanvas" aria-label="f(x_n) 随 n 变化"></canvas>
+            <span class="vlabel">f(xₙ) 随 n 的变化</span>
+          </div>
+          <div class="verdict-box" id="hn-verdict" aria-live="polite"></div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数（a = 0）</span>
+            <div class="chips" id="hn-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sinpix">$\sin\frac{\pi}{x}$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+            </div>
+          </div>
+          <div class="slots" id="hn-slots">
+            <div class="slot a" data-i="0"><div class="slot-top"><span class="nm">xₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第一个数列的通项"><button class="x" type="button" aria-label="开关第一个数列">✓</button></div><div class="slot-info"></div></div>
+            <div class="slot b" data-i="1"><div class="slot-top"><span class="nm">yₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第二个数列的通项"><button class="x" type="button" aria-label="开关第二个数列">✓</button></div><div class="slot-info"></div></div>
+            <div class="slot c off" data-i="2"><div class="slot-top"><span class="nm">zₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第三个数列的通项" placeholder="例如 (-1)^n/n"><button class="x" type="button" aria-label="开关第三个数列">○</button></div><div class="slot-info"></div></div>
+          </div>
+          <datalist id="hn-lib">
+            <option value="1/n"></option><option value="-1/n"></option><option value="(-1)^n/n"></option>
+            <option value="1/(n*pi)"></option><option value="1/(pi/2 + 2n*pi)"></option><option value="1/(3pi/2 + 2n*pi)"></option>
+            <option value="2/(4n+1)"></option><option value="1/sqrt(n)"></option>
+          </datalist>
+          <div class="btns">
+            <button class="btn" type="button" id="hn-mix">交错 xₙ, yₙ → zₙ</button>
+            <button class="btn" type="button" id="hn-reset">恢复示例</button>
+          </div>
+          <div class="grp">
+            <label class="sl"><span class="sl-name">显示前 <i class="m">N</i> 项</span><output id="hn-N-out">30</output><input type="range" id="hn-N" min="1" max="200" step="1" value="30"></label>
+            <div class="btns">
+              <button class="btn primary" type="button" id="hn-play">▶ 播放 n → ∞</button>
+              <label class="check"><input type="checkbox" id="hn-follow" checked> 镜头跟随</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="collect" id="hn-collect">
+        <div class="collect-head"><strong>收集挑战（$\sin\frac1x$）</strong><span class="muted">构造 $x_n\to0$ 使 $\sin\frac{1}{x_n}$ 收敛到下面每个目标值。收敛到的值会被记在数轴上。</span></div>
+        <div class="chips" id="hn-targets"></div>
+        <div class="numline" id="hn-numline" aria-label="已收集的极限值"></div>
+        <div class="btns"><button class="btn sm" type="button" id="hn-hint">给我一点提示</button></div>
+        <div class="insight" id="hn-insight" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.3 bridge -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.3</span><h3>为什么数列“够用”：从 ε–δ 的否定造出坏数列</h3></div>
+    <div class="prose">
+      <p>“⇒”方向是直接代入（见第 4 章）。难的是“⇐”：凭什么检验数列就能断定函数极限？用逆否命题。设 $\lim_{x\to a}f(x)=A$ <strong>不成立</strong>，由 1.3 的否定：存在 $\varepsilon_0>0$，对每个 $\delta>0$ 都有坏点 $x$。<strong>让 $\delta$ 依次取 $1,\frac12,\frac13,\dots$</strong>，每一步取出一个坏点 $x_n$：</p>
+    </div>
+    <div class="display">$$0&lt;|x_n-a|&lt;\frac1n,\qquad |f(x_n)-A|\ge\varepsilon_0 .$$</div>
+    <div class="prose"><p>前一式给出 $x_n\to a$ 且 $x_n\ne a$；后一式说明 $f(x_n)\not\to A$。于是“所有数列都给出 $A$”不成立。下面用 $f(x)=\sin\frac1x$ 实际跑一遍这台“坏点机器”：无论你声称极限是哪个 $A$，取 $\varepsilon_0=1$ 都行，因为 $\sin\frac1x$ 在任何去心邻域里都同时取到 $1$ 和 $-1$。</p></div>
+    <div class="lab" id="br-lab">
+      <div class="lab-head"><h4>实验台 3 · 坏点机器</h4><p>每按一次，δ 缩为 1/n，机器从 $(0,\frac1n)$ 里取出一个满足 $|f(x_n)-A|\ge1$ 的点。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="br-canvas" aria-label="坏点机器图像"></canvas>
+          <div class="plot-tools" id="br-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准当前 δ">⌖</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <label class="sl"><span class="sl-name">你声称的极限 <i class="m">A</i></span><output id="br-A-out">0</output><input type="range" id="br-A" min="-1.5" max="1.5" step="0.01" value="0"></label>
+          <div class="btns">
+            <button class="btn primary" type="button" id="br-next">下一步：n → n+1</button>
+            <button class="btn" type="button" id="br-jump">跳到 n = 1000</button>
+            <button class="btn" type="button" id="br-reset">重来</button>
+          </div>
+          <div class="table-scroll"><table class="bridge-table"><thead><tr><th>n</th><th>δ = 1/n</th><th>xₙ</th><th>f(xₙ)</th><th>|f(xₙ) − A|</th></tr></thead><tbody id="br-rows"></tbody></table></div>
+          <p class="muted" style="font-size:var(--t-sm)" id="br-rule"></p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><span class="tag info">细节</span><div>每一步“取出一个”坏点，严格地说用到了（可数）选择公理；数学分析课程中默认可用。对 $\sin\frac1x$ 则不需要：坏点有明确公式 $x_n=\dfrac{1}{\frac\pi2+2k\pi}$（$k$ 取使 $x_n&lt;\frac1n$ 的最小整数）。</div></div>
+  </div>
+
+  <!-- 2.4 pitfalls -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.4</span><h3>三个容易踩的坑</h3></div>
+    <div class="cards">
+      <div class="note"><span class="tag">坑 1</span><div><strong>一个数列不够。</strong>$f(x)=\sin\frac{\pi}{x}$，取 $x_n=\frac1n$ 得 $f(x_n)=\sin n\pi=0\to0$；但取 $x_n=\frac{2}{4n+1}$ 得 $f(x_n)=1$。定理要求<em>所有</em>数列。<br><button class="btn sm" type="button" data-open="heine:sinpix" style="margin-top:6px">在工坊里试试</button></div></div>
+      <div class="note"><span class="tag">坑 2</span><div><strong>$x_n\ne a$ 不能省。</strong>令 $f(x)=0\ (x\ne0)$，$f(0)=1$。显然 $\lim_{x\to0}f(x)=0$，但常数列 $x_n\equiv0$ 给出 $f(x_n)=1$。极限从不看 $f(a)$。</div></div>
+      <div class="note"><span class="tag">坑 3</span><div><strong>有限次实验不是证明。</strong>工坊里试了一百个数列都给出 $0$，也只是“与极限为 $0$ 相容”。要证明存在，回到 ε–δ 或 Cauchy；要证明不存在，两个数列就够了——这就是归结原理在反证中如此好用的原因。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 3: CAUCHY ================= -->
+<section class="chapter ch-cauchy" id="cauchy">
+  <div class="chap-head">
+    <span class="chap-sym">|f(x′) − f(x″)|</span>
+    <div><p class="eyebrow">第 3 章</p><h2>Cauchy 准则：不知道极限值也能判断</h2></div>
+  </div>
+  <div class="prose"><p>ε–δ 定义有个麻烦：必须先拿出 $A$。如果猜不到 $A$，或者要证明<em>不存在</em>（这时得对每个 $A$ 都论证），就需要一个不提 $A$ 的判别法。</p></div>
+  <div class="theorem">
+    <p class="t-name">定理（函数极限的 Cauchy 准则）</p>
+    <p>设 $f$ 在 $U^\circ(a;\delta')$ 内有定义。$\lim\limits_{x\to a}f(x)$ 存在的充要条件是：任给 $\varepsilon>0$，存在正数 $\delta\ (&lt;\delta')$，使得对任何 $x',x''\in U^\circ(a;\delta)$，有 $|f(x')-f(x'')|&lt;\varepsilon$。</p>
+  </div>
+  <div class="prose" style="margin-top:14px"><p>几何上看，这等于说<strong>振幅</strong> $\omega(\delta)=\sup\limits_{U^\circ(a;\delta)}f-\inf\limits_{U^\circ(a;\delta)}f$ 在 $\delta\to0^+$ 时趋于 $0$：δ 窗口里的函数值被挤进一条越来越窄、但位置事先不知道的带子。</p></div>
+
+  <!-- 3.2 oscillation lab -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.2</span><h3>振幅计</h3></div>
+    <div class="lab" id="ca-lab">
+      <div class="lab-head"><h4>实验台 4 · 振幅计</h4><p>紫色带是 δ 窗口内函数值的范围 $[\inf f,\sup f]$，它的高度就是 $\omega(\delta)$。右下小图记录 $\omega$ 随 $\delta$ 的变化（横轴对数刻度）。</p></div>
+      <div class="lab-body">
+        <div class="hn-plots">
+          <div class="plot-wrap">
+            <canvas id="ca-canvas" aria-label="振幅计图像"></canvas>
+            <div class="plot-tools" id="ca-tools">
+              <button type="button" data-z="in" aria-label="放大">＋</button>
+              <button type="button" data-z="out" aria-label="缩小">－</button>
+              <button type="button" data-z="focus" aria-label="对准 δ 窗口">⌖</button>
+              <button type="button" data-z="home" aria-label="复位视图">⟲</button>
+            </div>
+            <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数</span>
+            <div class="chips" id="ca-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+              <button class="chip" type="button" data-v="sq">$x^2\ (a=2)$</button>
+            </div>
+          </div>
+          <label class="sl delta"><span class="sl-name">窗口 <i class="m">δ</i>（对数刻度）</span><output id="ca-delta-out">—</output><input type="range" id="ca-delta"></label>
+          <label class="check"><input type="checkbox" id="ca-follow" checked> 视窗跟随 δ</label>
+          <div class="plot-wrap short" style="border:1px solid var(--rule);border-radius:8px;overflow:hidden;min-height:170px"><canvas id="ca-wcanvas" aria-label="振幅随 δ 变化"></canvas><span class="vlabel">振幅 ω(δ)</span></div>
+          <div class="status" id="ca-status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.3 pair game -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.3</span><h3>两点博弈：Cauchy 准则的否定</h3></div>
+    <div class="prose"><p>把准则否定：$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x',x''\in U^\circ(a;\delta)$，使 $|f(x')-f(x'')|\ge\varepsilon_0$。这里<strong>没有 $A$</strong>。你先定 $\varepsilon_0$，电脑每轮给一个更小的 $\delta$，你在青色区域里点两次，选出 $x'$ 和 $x''$。点击会吸附到你点的高度附近的图像上。</p></div>
+    <div class="lab" id="pg-lab">
+      <div class="lab-head"><h4>实验台 5 · 两点博弈</h4><p>电脑也会认真防守：如果存在让振幅小于 ε₀ 的 δ，它就会选那样的 δ。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="pg-canvas" aria-label="两点博弈图像"></canvas>
+          <div class="plot-tools" id="pg-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准 δ 窗口">⌖</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数（a = 0）</span>
+            <div class="chips" id="pg-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+            </div>
+          </div>
+          <label class="sl cau"><span class="sl-name">你的 <i class="m">ε</i>₀</span><output id="pg-eps-out">1</output><input type="range" id="pg-eps" min="0.1" max="2.5" step="0.05" value="1"></label>
+          <div class="game" id="pg-game"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.4 three negations -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.4</span><h3>同一个结论，三种反证</h3></div>
+    <div class="prose"><p>证明 $\lim_{x\to0}\sin\frac1x$ 不存在。三个视角的否定形式并排放在一起，看清它们其实是同一件事：</p></div>
+    <div class="cmp-scroll">
+      <table class="cmp">
+        <thead><tr><th>视角</th><th>需要证明的否定形式</th><th>对 $\sin\frac1x$ 的具体选择</th><th>要先知道 A 吗</th></tr></thead>
+        <tbody>
+          <tr><th class="c-eps">ε–δ</th><td>$\forall A\ \exists\varepsilon_0\ \forall\delta\ \exists x\in U^\circ(0;\delta):\ |f(x)-A|\ge\varepsilon_0$</td><td>$\varepsilon_0=1$；若 $A\le0$ 取 $x=\frac{1}{\frac\pi2+2k\pi}$，若 $A>0$ 取 $x=\frac{1}{\frac{3\pi}2+2k\pi}$，$k$ 充分大</td><td class="need c-bad">要对每个 $A$ 分情况</td></tr>
+          <tr><th class="c-seq">Heine</th><td>$\exists\,x_n\to0,\ y_n\to0\ (x_n,y_n\ne0)$：$\lim f(x_n)\ne\lim f(y_n)$</td><td>$x_n=\frac{1}{2n\pi}$，$f(x_n)=0$；$y_n=\frac{1}{\frac\pi2+2n\pi}$，$f(y_n)=1$</td><td class="need c-ok">不需要</td></tr>
+          <tr><th class="c-cau">Cauchy</th><td>$\exists\varepsilon_0\ \forall\delta\ \exists x',x''\in U^\circ(0;\delta):\ |f(x')-f(x'')|\ge\varepsilon_0$</td><td>$\varepsilon_0=1$；$x'=\frac{1}{2k\pi}$，$x''=\frac{1}{\frac\pi2+2k\pi}$，$k>\frac{1}{2\pi\delta}$</td><td class="need c-ok">不需要</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cards">
+      <div class="note"><span class="tag info">联系</span><div>Cauchy 否定里，让 $\delta=\frac1n$，每步选出的 $x'_n,x''_n$ 恰好组成两个数列：$x'_n\to0$，$x''_n\to0$，而 $|f(x'_n)-f(x''_n)|\ge\varepsilon_0$。<strong>Cauchy 准则的否定就是 Heine 两数列法的“连续版本”。</strong></div></div>
+      <div class="note"><span class="tag info">反证法</span><div>假设 $\lim_{x\to0}\sin\frac1x$ 存在。由 Cauchy 准则，对 $\varepsilon_0=1$ 有 $\delta>0$ 使 $U^\circ(0;\delta)$ 内任两点函数值之差 $&lt;1$。取 $k>\frac{1}{2\pi\delta}$，则 $x'=\frac1{2k\pi}$、$x''=\frac1{\frac\pi2+2k\pi}$ 都在 $U^\circ(0;\delta)$ 内，但 $|f(x')-f(x'')|=1$，矛盾。∎</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 4: MAP ================= -->
+<section class="chapter ch-map" id="map">
+  <div class="chap-head">
+    <span class="chap-sym">⇔</span>
+    <div><p class="eyebrow">第 4 章</p><h2>三者如何互相推出</h2></div>
+  </div>
+  <div class="prose"><p>点击箭头查看对应的证明。注意第 ④ 条：<strong>实数的完备性</strong>只在这一步出场——这正是 Cauchy 准则比另外两个说法“多出来”的内容。</p></div>
+  <div class="map-grid">
+    <div class="map-svg-wrap">
+      <svg viewBox="0 0 640 470" role="group" aria-label="三种视角的推出关系图">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mhead"></path></marker>
+          <marker id="ah-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mhead on"></path></marker>
+        </defs>
+        <g class="marrow" data-p="1" tabindex="0" role="button" aria-label="证明 ①：ε–δ 推出 Heine">
+          <path class="hit" d="M240,76 C150,92 104,180 108,280"></path>
+          <path class="vis" d="M240,76 C150,92 104,180 108,280" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="106" y="146" width="96" height="26" rx="13"></rect><text x="154" y="164">① 直接代入</text></g>
+        </g>
+        <g class="marrow" data-p="2" tabindex="0" role="button" aria-label="证明 ②：Heine 推出 ε–δ">
+          <path class="hit" d="M178,284 C206,214 246,150 284,106"></path>
+          <path class="vis" d="M178,284 C206,214 246,150 284,106" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="190" y="208" width="128" height="26" rx="13"></rect><text x="254" y="226">② 反证 + δ = 1/n</text></g>
+        </g>
+        <g class="marrow" data-p="3" tabindex="0" role="button" aria-label="证明 ③：ε–δ 推出 Cauchy">
+          <path class="hit" d="M400,76 C490,92 536,180 532,280"></path>
+          <path class="vis" d="M400,76 C490,92 536,180 532,280" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="436" y="146" width="110" height="26" rx="13"></rect><text x="491" y="164">③ 三角不等式</text></g>
+        </g>
+        <g class="marrow" data-p="4" tabindex="0" role="button" aria-label="证明 ④：Cauchy 推出 Heine 条件，用到实数完备性">
+          <path class="hit" d="M440,318 L200,318"></path>
+          <path class="vis" d="M440,318 L200,318" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="250" y="296" width="140" height="26" rx="13"></rect><text x="320" y="314">④ 完备性 + 交错</text></g>
+        </g>
+        <path class="mdash" d="M320,322 L320,380"></path>
+        <g class="mnode"><rect x="240" y="40" width="160" height="62" rx="10"></rect><text x="320" y="68">ε–δ 定义</text><text class="s" x="320" y="89">∀ε ∃δ ∀x</text></g>
+        <g class="mnode"><rect x="40" y="284" width="160" height="62" rx="10"></rect><text x="120" y="312">Heine 归结</text><text class="s" x="120" y="333">∀xₙ→a: f(xₙ)→A</text></g>
+        <g class="mnode"><rect x="440" y="284" width="160" height="62" rx="10"></rect><text x="520" y="312">Cauchy 准则</text><text class="s" x="520" y="333">∀ε ∃δ ∀x′,x″</text></g>
+        <g class="mnode r"><rect x="210" y="380" width="220" height="62" rx="10"></rect><text x="320" y="406" style="font-size:15px">实数完备性</text><text class="s" x="320" y="427">Cauchy 数列必收敛</text></g>
+      </svg>
+    </div>
+    <div class="map-proof" id="map-proof">
+      <div class="pf" data-p="0">
+        <h4>点击左图中的任意箭头</h4>
+        <p>四条箭头构成闭环：① 和 ② 说明 ε–δ ⇔ Heine；③ 给出 ε–δ ⇒ Cauchy；④ 从 Cauchy 回到 Heine 的条件，再经 ② 回到 ε–δ。</p>
+      </div>
+      <div class="pf" data-p="1" hidden>
+        <h4>① ε–δ ⇒ Heine</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$，$x_n\to a$，$x_n\ne a$。任给 $\varepsilon>0$，由定义取 $\delta$。</li>
+          <li>因为 $x_n\to a$，存在 $N$，当 $n>N$ 时 $|x_n-a|&lt;\delta$；又 $x_n\ne a$，所以 $0&lt;|x_n-a|&lt;\delta$。</li>
+          <li>于是 $|f(x_n)-A|&lt;\varepsilon$ 对所有 $n>N$ 成立，即 $f(x_n)\to A$。∎</li>
+        </ol>
+        <p class="where">关键：数列的 “$\exists N$” 吃掉了函数的 “$\exists\delta$”。$x_n\ne a$ 保证了 $x_n$ 落在<em>去心</em>邻域。</p>
+      </div>
+      <div class="pf" data-p="2" hidden>
+        <h4>② Heine ⇒ ε–δ（逆否）</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$ 不成立：$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x$，$0&lt;|x-a|&lt;\delta$ 且 $|f(x)-A|\ge\varepsilon_0$。</li>
+          <li>依次取 $\delta=\frac1n$，得到 $x_n$：$0&lt;|x_n-a|&lt;\frac1n$，$|f(x_n)-A|\ge\varepsilon_0$。</li>
+          <li>于是 $x_n\to a$、$x_n\ne a$，但 $f(x_n)\not\to A$，与 Heine 条件矛盾。∎</li>
+        </ol>
+        <p class="where"><button class="btn sm" type="button" data-open="bridge">在实验台 3 看坏点机器 →</button></p>
+      </div>
+      <div class="pf" data-p="3" hidden>
+        <h4>③ ε–δ ⇒ Cauchy</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$。任给 $\varepsilon>0$，对 $\frac\varepsilon2$ 取 $\delta$：$0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\frac\varepsilon2$。</li>
+          <li>对任何 $x',x''\in U^\circ(a;\delta)$：$|f(x')-f(x'')|\le|f(x')-A|+|A-f(x'')|&lt;\varepsilon$。∎</li>
+        </ol>
+        <p class="where">几何上：函数值都在宽 $\varepsilon$ 的 ε/2 带里，任两点之差自然 $&lt;\varepsilon$。<button class="btn sm" type="button" data-open="cauchy:xsin">在振幅计里看 →</button></p>
+      </div>
+      <div class="pf" data-p="4" hidden>
+        <h4>④ Cauchy ⇒ 极限存在</h4>
+        <ol>
+          <li><strong>每个 $f(x_n)$ 都是 Cauchy 列。</strong>设 $x_n\to a$，$x_n\ne a$。任给 $\varepsilon$，由准则取 $\delta$；再取 $N$ 使 $n>N$ 时 $0&lt;|x_n-a|&lt;\delta$。则 $m,n>N$ 时 $|f(x_m)-f(x_n)|&lt;\varepsilon$。</li>
+          <li><strong>完备性登场。</strong>由数列的 Cauchy 收敛准则（实数完备性），$f(x_n)$ 收敛。</li>
+          <li><strong>极限与数列无关。</strong>若 $f(x_n)\to A$，$f(y_n)\to B$，作交错数列 $z_n$：$x_1,y_1,x_2,y_2,\dots$。它仍 $\to a$ 且 $\ne a$，故 $f(z_n)$ 收敛；它的两个子列 $f(x_n)$、$f(y_n)$ 极限必相等，$A=B$。</li>
+          <li>所有数列给出同一个 $A$，由 ② 得 $\lim_{x\to a}f(x)=A$。∎</li>
+        </ol>
+        <p class="where">在有理数里第 2 步会失败：$1,\,1.4,\,1.41,\,1.414,\dots$ 是 Cauchy 列，却没有有理数极限。<button class="btn sm" type="button" data-open="heine:mix">在工坊里试交错数列 →</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-head"><span class="num">4.2</span><h3>做题时选哪一个</h3></div>
+    <div class="cmp-scroll">
+      <table class="guide">
+        <thead><tr><th>你要证明的</th><th>首选工具</th><th>典型写法</th></tr></thead>
+        <tbody>
+          <tr><td>已知（猜到）$A$，证明 $\lim f=A$</td><td class="c-eps">ε–δ</td><td>草稿倒推，正式证明里“任给 $\varepsilon$，取 $\delta=\cdots$”</td></tr>
+          <tr><td>极限不存在</td><td class="c-seq">Heine</td><td>两个数列给出不同极限，或一个数列使 $f(x_n)$ 发散</td></tr>
+          <tr><td>极限存在，但猜不到 $A$</td><td class="c-cau">Cauchy</td><td>控制 $|f(x')-f(x'')|$；或先用 Heine 化为数列再用单调有界等</td></tr>
+          <tr><td>用已知函数极限求数列极限</td><td class="c-seq">Heine（⇒ 方向）</td><td>$\lim n\sin\frac1n=\lim_{x\to0}\frac{\sin x}{x}=1$</td></tr>
+          <tr><td>证明极限的性质（唯一性、局部有界、保号…）</td><td class="c-eps">ε–δ</td><td>对特定的 $\varepsilon$（如 $\frac{|A|}{2}$）取 $\delta$</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="k-eps"><h4>ε–δ</h4><p>$\forall\varepsilon\,\exists\delta\,\forall x\in U^\circ(a;\delta):|f(x)-A|&lt;\varepsilon$</p><p class="muted" style="margin-top:6px">否定：$\exists\varepsilon_0\,\forall\delta\,\exists x\in U^\circ(a;\delta):|f(x)-A|\ge\varepsilon_0$</p></div>
+    <div class="k-seq"><h4>Heine</h4><p>$\forall x_n\to a\ (x_n\ne a):\ f(x_n)\to A$</p><p class="muted" style="margin-top:6px">否定：$\exists x_n\to a\ (x_n\ne a):\ f(x_n)\not\to A$</p></div>
+    <div class="k-cau"><h4>Cauchy</h4><p>$\forall\varepsilon\,\exists\delta\,\forall x',x''\in U^\circ(a;\delta):|f(x')-f(x'')|&lt;\varepsilon$</p><p class="muted" style="margin-top:6px">否定：$\exists\varepsilon_0\,\forall\delta\,\exists x',x''\in U^\circ(a;\delta):|f(x')-f(x'')|\ge\varepsilon_0$</p></div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 5: PRACTICE ================= -->
+<section class="chapter ch-prac" id="practice">
+  <div class="chap-head">
+    <span class="chap-sym">Ex.</span>
+    <div><p class="eyebrow">第 5 章 · English Practice</p><h2>Practice Problems</h2></div>
+  </div>
+  <div class="prose"><p>Twelve problems covering quantifiers, constructing δ, Heine's sequential criterion and the Cauchy criterion. Some answers are checked numerically, so you can type a formula and get instant feedback. Your progress is saved in this browser.</p></div>
+  <div class="prac-top">
+    <div class="progress" aria-hidden="true"><i id="ex-bar"></i></div>
+    <span class="mono" id="ex-count" style="font-size:var(--t-sm)">0 / 12 solved</span>
+    <button class="btn sm" type="button" id="ex-reset">Reset progress</button>
+  </div>
+  <div class="ex-list" id="ex-list"></div>
+</section>
+
+<footer class="foot">
+  <p>函数极限实验室 · 所有“数值检验”只作为直观证据；严格结论以文中的证明为准。图像使用逐像素区间包络绘制，因此 $\sin\frac1x$ 在 $0$ 附近显示为一整条带——这正是它的真实样子。</p>
+</footer>
+
+</div>
+</main>

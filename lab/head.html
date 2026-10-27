@@ -1,0 +1,23 @@
+<title>函数极限实验室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="交互式数学分析实验：ε–δ 定义、Heine 归结原理与 Cauchy 准则">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<script>
+window.MathJax = {
+  loader: { load: ['[tex]/html'] },
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], packages: { '[+]': ['html'] } },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false },
+  startup: {
+    ready() {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        if (typeof Lab !== 'undefined') { Lab.mjReady = true; Lab.emit('mathjax'); }
+      });
+    },
+  },
+};
+</script>
+<script src="__MATHJAX__" async></script>

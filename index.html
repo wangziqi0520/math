@@ -1,0 +1,3163 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>函数极限实验室</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="交互式数学分析实验：ε–δ 定义、Heine 归结原理与 Cauchy 准则">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;900&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400;1,600&display=swap">
+<script>
+window.MathJax = {
+  loader: { load: ['[tex]/html'] },
+  tex: { inlineMath: [['$', '$'], ['\\(', '\\)']], displayMath: [['$$', '$$'], ['\\[', '\\]']], packages: { '[+]': ['html'] } },
+  svg: { fontCache: 'global' },
+  options: { enableMenu: false },
+  startup: {
+    ready() {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        if (typeof Lab !== 'undefined') { Lab.mjReady = true; Lab.emit('mathjax'); }
+      });
+    },
+  },
+};
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.js" async></script>
+
+<style>
+/* Layout: 方格演算纸上的仪器台 —— 讲解在 ~68ch 的正文栏，实验台横跨宽栏；颜色即语义：ε 琥珀、δ 青、数列 玫红/蓝/橄榄、Cauchy 紫 */
+:root {
+  --paper: #EDF1EE;
+  --paper-grid: rgba(24, 92, 104, .07);
+  --paper-grid-2: rgba(24, 92, 104, .12);
+  --panel: #FAFBF9;
+  --panel-2: #F0F4F1;
+  --rule: #CBD5CF;
+  --rule-2: #A9B8B0;
+  --ink: #16202A;
+  --ink-2: #44515D;
+  --ink-3: #75828D;
+  --eps: #A65C00;
+  --eps-fill: rgba(222, 140, 18, .16);
+  --delta: #04727E;
+  --delta-fill: rgba(8, 140, 152, .13);
+  --seq-a: #BE2A62;
+  --seq-b: #2A5EC2;
+  --seq-c: #5A7A0C;
+  --cau: #5843BE;
+  --cau-fill: rgba(88, 67, 190, .14);
+  --ok: #187C44;
+  --ok-fill: rgba(24, 124, 68, .10);
+  --bad: #C02E28;
+  --bad-fill: rgba(192, 46, 40, .09);
+  --curve: #16202A;
+  --plot-bg: #FCFDFB;
+  --plot-grid: rgba(22, 32, 42, .055);
+  --plot-grid-2: rgba(22, 32, 42, .11);
+  --plot-axis: rgba(22, 32, 42, .5);
+  --plot-label: #56636F;
+  --focus: #2A5EC2;
+  --shadow: 0 1px 0 rgba(22, 32, 42, .04), 0 10px 30px -18px rgba(22, 32, 42, .35);
+
+  --f-display: "Noto Serif SC", "Source Han Serif SC", "Songti SC", "SimSun", serif;
+  --f-body: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+  --f-math: "STIX Two Text", "Times New Roman", "Cambria", serif;
+  --f-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --t-xs: .78rem;
+  --t-sm: .875rem;
+  --t-md: 1rem;
+  --t-lg: 1.18rem;
+  --t-xl: 1.5rem;
+  --t-2xl: 2.1rem;
+  --t-3xl: clamp(2.4rem, 6vw, 4rem);
+  --wide: 1200px;
+  --prose: 44rem;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #0E1317; --paper-grid: rgba(120, 200, 210, .045); --paper-grid-2: rgba(120, 200, 210, .085);
+    --panel: #151C22; --panel-2: #1B242B; --rule: #29353F; --rule-2: #3B4A55;
+    --ink: #E3EAE6; --ink-2: #AAB6B1; --ink-3: #7A8883;
+    --eps: #F2A73A; --eps-fill: rgba(242, 167, 58, .17);
+    --delta: #3DC2C8; --delta-fill: rgba(61, 194, 200, .14);
+    --seq-a: #F2689B; --seq-b: #75A0F7; --seq-c: #A9CB4C;
+    --cau: #A794FF; --cau-fill: rgba(167, 148, 255, .17);
+    --ok: #4FC481; --ok-fill: rgba(79, 196, 129, .12); --bad: #F2685C; --bad-fill: rgba(242, 104, 92, .12);
+    --curve: #E3EAE6; --plot-bg: #11171C; --plot-grid: rgba(227, 234, 230, .05); --plot-grid-2: rgba(227, 234, 230, .1);
+    --plot-axis: rgba(227, 234, 230, .45); --plot-label: #93A19B; --focus: #75A0F7;
+    --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 34px -20px rgba(0, 0, 0, .8);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #0E1317; --paper-grid: rgba(120, 200, 210, .045); --paper-grid-2: rgba(120, 200, 210, .085);
+  --panel: #151C22; --panel-2: #1B242B; --rule: #29353F; --rule-2: #3B4A55;
+  --ink: #E3EAE6; --ink-2: #AAB6B1; --ink-3: #7A8883;
+  --eps: #F2A73A; --eps-fill: rgba(242, 167, 58, .17);
+  --delta: #3DC2C8; --delta-fill: rgba(61, 194, 200, .14);
+  --seq-a: #F2689B; --seq-b: #75A0F7; --seq-c: #A9CB4C;
+  --cau: #A794FF; --cau-fill: rgba(167, 148, 255, .17);
+  --ok: #4FC481; --ok-fill: rgba(79, 196, 129, .12); --bad: #F2685C; --bad-fill: rgba(242, 104, 92, .12);
+  --curve: #E3EAE6; --plot-bg: #11171C; --plot-grid: rgba(227, 234, 230, .05); --plot-grid-2: rgba(227, 234, 230, .1);
+  --plot-axis: rgba(227, 234, 230, .45); --plot-label: #93A19B; --focus: #75A0F7;
+  --shadow: 0 1px 0 rgba(0, 0, 0, .3), 0 14px 34px -20px rgba(0, 0, 0, .8);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 72px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; animation: none !important; } }
+body {
+  margin: 0;
+  background-color: var(--paper);
+  background-image:
+    linear-gradient(var(--paper-grid-2) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-grid-2) 1px, transparent 1px),
+    linear-gradient(var(--paper-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--paper-grid) 1px, transparent 1px);
+  background-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 16px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+}
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--panel); }
+a { color: var(--seq-b); text-underline-offset: 3px; }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+h1, h2, h3, h4 { font-family: var(--f-display); text-wrap: balance; line-height: 1.3; margin: 0; }
+p { margin: 0; }
+b, strong { font-weight: 700; }
+i.m, .m { font-family: var(--f-math); font-style: italic; font-size: 1.08em; }
+.m-up { font-family: var(--f-math); font-style: normal; }
+.mono, output { font-family: var(--f-mono); font-variant-numeric: tabular-nums; }
+mjx-container { max-width: 100%; }
+mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: 4px 0; margin: .6em 0 !important; }
+.c-eps { color: var(--eps); } .c-delta { color: var(--delta); } .c-seq { color: var(--seq-a); } .c-cau { color: var(--cau); }
+.c-ok { color: var(--ok); } .c-bad { color: var(--bad); } .muted { color: var(--ink-3); }
+
+/* ---------- top bar ---------- */
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--rule);
+}
+.topbar-in {
+  max-width: var(--wide); margin: 0 auto;
+  padding-block: 8px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.brand { display: flex; align-items: baseline; gap: 10px; text-decoration: none; color: var(--ink); font-family: var(--f-display); font-weight: 900; font-size: 1.02rem; white-space: nowrap; }
+.brand-mark { font-family: var(--f-math); font-style: italic; font-weight: 600; color: var(--delta); font-size: 1.15rem; }
+.toc { display: flex; gap: 2px; margin-left: auto; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.toc::-webkit-scrollbar { display: none; }
+.toc a { text-decoration: none; color: var(--ink-2); font-size: var(--t-sm); padding: 4px 10px; border-radius: 999px; white-space: nowrap; }
+.toc a:hover { background: var(--panel-2); color: var(--ink); }
+.toc a.on { background: var(--ink); color: var(--panel); }
+
+/* ---------- page frame ---------- */
+main { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.wrap { max-width: var(--wide); margin: 0 auto; }
+.prose { max-width: var(--prose); }
+.prose p + p, .prose p + ul, .prose ul + p, .prose p + .display, .prose .display + p { margin-top: .9em; }
+.prose ul { margin: .6em 0 0; padding-left: 1.3em; }
+.prose li + li { margin-top: .35em; }
+.display { overflow-x: auto; }
+.eyebrow { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .14em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ---------- hero ---------- */
+.hero { padding-block: clamp(28px, 6vw, 64px) 24px; }
+.hero-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+.hero h1 { font-size: var(--t-3xl); font-weight: 900; letter-spacing: .02em; margin-top: 10px; }
+.hero h1 .lim { font-family: var(--f-math); font-style: italic; font-weight: 400; color: var(--delta); margin-right: .12em; }
+.hero-sub { font-family: var(--f-math); font-style: italic; color: var(--ink-2); font-size: var(--t-lg); margin-top: 4px; }
+.hero .lede { max-width: 40rem; font-size: 1.06rem; color: var(--ink-2); margin-top: 14px; }
+
+.scope { background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; margin-top: 26px; }
+.scope-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 12px 16px; border-bottom: 1px solid var(--rule); background: var(--panel-2); }
+.scope-bar .zoom { display: flex; align-items: center; gap: 12px; flex: 1 1 320px; min-width: 0; }
+.scope-bar .zoom input { flex: 1; min-width: 0; }
+.scope-bar .zoom-read { font-family: var(--f-mono); font-size: var(--t-sm); white-space: nowrap; }
+.scope-lenses { display: grid; grid-template-columns: 1fr 1fr; }
+.lens { position: relative; min-width: 0; }
+.lens + .lens { border-left: 1px solid var(--rule); }
+.lens-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding: 10px 14px 0; flex-wrap: wrap; }
+.lens-head .fx { font-size: 1.05rem; }
+.lens-read { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-2); }
+.lens canvas { display: block; width: 100%; height: clamp(200px, 28vw, 300px); }
+.lens-verdict { position: absolute; right: 12px; bottom: 10px; font-size: var(--t-xs); padding: 2px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--rule); }
+.scope-cap { padding: 12px 16px 14px; border-top: 1px solid var(--rule); color: var(--ink-2); font-size: .95rem; }
+@media (max-width: 640px) {
+  .scope-lenses { grid-template-columns: 1fr; }
+  .lens + .lens { border-left: 0; border-top: 1px solid var(--rule); }
+}
+
+.lenses3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 26px; }
+.lens3 { display: flex; flex-direction: column; gap: 6px; padding: 14px 16px 16px; border-top: 3px solid var(--k); background: color-mix(in srgb, var(--panel) 70%, transparent); text-decoration: none; color: var(--ink); border-radius: 0 0 8px 8px; transition: background .2s; }
+.lens3:hover { background: var(--panel); }
+.lens3 .k-sym { font-family: var(--f-math); font-style: italic; font-size: 1.25rem; color: var(--k); }
+.lens3 h3 { font-size: 1.12rem; }
+.lens3 p { font-size: var(--t-sm); color: var(--ink-2); line-height: 1.65; }
+.lens3 .use { font-size: var(--t-xs); color: var(--ink-3); margin-top: auto; padding-top: 6px; }
+@media (max-width: 760px) { .lenses3 { grid-template-columns: 1fr; } }
+
+/* ---------- chapters ---------- */
+.chapter { padding-block: clamp(40px, 7vw, 80px) 10px; border-top: 1px solid var(--rule); }
+.chap-head { display: flex; align-items: flex-end; gap: 18px 26px; flex-wrap: wrap; margin-bottom: 22px; }
+.chap-sym { font-family: var(--f-math); font-style: italic; font-size: clamp(2.6rem, 7vw, 4.4rem); line-height: 1; color: var(--k); letter-spacing: -.01em; }
+.chap-head h2 { font-size: var(--t-2xl); font-weight: 900; }
+.chap-head .eyebrow { margin-bottom: 4px; }
+.ch-ed { --k: var(--eps); }
+.ch-heine { --k: var(--seq-a); }
+.ch-cauchy { --k: var(--cau); }
+.ch-map { --k: var(--delta); }
+.ch-prac { --k: var(--seq-b); }
+
+.sub { margin-top: clamp(36px, 5vw, 56px); }
+.sub-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 12px; }
+.sub-head .num { font-family: var(--f-mono); font-size: var(--t-sm); color: var(--k); }
+.sub-head h3 { font-size: var(--t-xl); font-weight: 600; }
+
+.theorem { border-left: 3px solid var(--k); padding: 10px 0 10px 18px; margin-top: 18px; max-width: var(--prose); }
+.theorem .t-name { font-family: var(--f-display); font-weight: 600; font-size: var(--t-sm); color: var(--k); letter-spacing: .05em; }
+
+.note { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; margin-top: 18px; max-width: var(--prose); padding: 12px 16px; background: var(--panel); border: 1px solid var(--rule); border-radius: 8px; font-size: .95rem; }
+.note .tag { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--bad); border: 1px solid currentColor; border-radius: 4px; padding: 0 6px; height: fit-content; margin-top: 4px; white-space: nowrap; }
+.note .tag.info { color: var(--delta); }
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr)); gap: 14px; margin-top: 18px; }
+.cards .note { margin-top: 0; max-width: none; }
+
+/* ---------- quantifier game ---------- */
+.qgame { margin-top: 18px; }
+.ed-def mjx-container { font-size: 112% !important; }
+.ed-def .q-eps, .ed-def .q-delta, .ed-def .q-x, .ed-def .q-judge { transition: fill .25s; }
+.ed-def.hl-eps .q-eps { fill: var(--eps); }
+.ed-def.hl-delta .q-delta { fill: var(--delta); }
+.ed-def.hl-x .q-x { fill: var(--seq-a); }
+.ed-def.hl-judge .q-judge { fill: var(--ok); }
+.qrow { display: flex; align-items: stretch; gap: 8px; flex-wrap: wrap; }
+.qarrow { align-self: center; color: var(--ink-3); font-family: var(--f-math); }
+.qchip { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 14px 10px; border-radius: 8px; border: 1px solid var(--rule-2); background: var(--panel); cursor: pointer; transition: transform .2s, border-color .2s, background .2s; min-width: 0; }
+.qchip:hover { transform: translateY(-1px); }
+.qchip .who { font-size: var(--t-xs); font-weight: 700; letter-spacing: .06em; }
+.qchip.adv .who { color: var(--bad); }
+.qchip.you .who { color: var(--ok); }
+.qchip.judge .who { color: var(--ink-3); }
+.qchip[aria-pressed="true"] { border-color: var(--ink); background: var(--panel-2); box-shadow: inset 0 -3px 0 var(--ink); }
+.qexplain { margin-top: 14px; max-width: var(--prose); min-height: 4.2em; padding: 12px 16px; background: var(--panel); border: 1px dashed var(--rule-2); border-radius: 8px; }
+.qswap { margin-top: 16px; max-width: var(--prose); }
+.qswap-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.qswap-body { margin-top: 10px; }
+
+/* ---------- buttons, chips, sliders ---------- */
+.btn { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--panel); cursor: pointer; font-size: var(--t-sm); line-height: 1.5; white-space: nowrap; transition: background .15s, border-color .15s; }
+.btn:hover { background: var(--panel-2); border-color: var(--ink-3); }
+.btn.primary { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.btn.primary:hover { background: var(--ink-2); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.sm { padding: 3px 10px; font-size: var(--t-xs); }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { padding: 3px 11px; border-radius: 999px; border: 1px solid var(--rule-2); background: var(--panel); cursor: pointer; font-size: var(--t-sm); line-height: 1.6; min-height: 32px; }
+.chip:hover { border-color: var(--ink-3); }
+.chip[aria-pressed="true"] { background: var(--ink); color: var(--panel); border-color: var(--ink); }
+.chip[aria-pressed="true"] mjx-container svg { fill: currentColor; }
+.chip.done { border-color: var(--ok); color: var(--ok); }
+
+.seg { display: flex; border: 1px solid var(--rule-2); border-radius: 8px; overflow: hidden; }
+.seg button { flex: 1; padding: 6px 8px; border: 0; background: var(--panel); cursor: pointer; font-size: var(--t-sm); white-space: nowrap; }
+.seg button + button { border-left: 1px solid var(--rule-2); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--panel); }
+
+.sl { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: baseline; gap: 0 10px; }
+.sl .sl-name { font-size: var(--t-sm); color: var(--ink-2); }
+.sl output { font-size: var(--t-sm); }
+.sl input[type="range"] { grid-column: 1 / -1; width: 100%; margin: 4px 0 0; }
+input[type="range"] { accent-color: var(--ink); height: 22px; }
+.sl.eps input { accent-color: var(--eps); } .sl.eps output { color: var(--eps); }
+.sl.delta input { accent-color: var(--delta); } .sl.delta output { color: var(--delta); }
+.sl.cau input { accent-color: var(--cau); } .sl.cau output { color: var(--cau); }
+input[type="range"]:disabled { opacity: .45; }
+.check { display: flex; align-items: center; gap: 8px; font-size: var(--t-sm); color: var(--ink-2); cursor: pointer; }
+.check input { accent-color: var(--ink); width: 16px; height: 16px; }
+
+/* ---------- lab ---------- */
+.lab { margin-top: 22px; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.lab-head { padding: 14px 18px 12px; border-bottom: 1px solid var(--rule); display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; background: var(--panel-2); }
+.lab-head h4 { font-size: 1.05rem; font-weight: 600; }
+.lab-head p { font-size: var(--t-sm); color: var(--ink-2); flex: 1 1 360px; min-width: 0; line-height: 1.65; }
+.lab-body { display: grid; grid-template-columns: minmax(0, 1fr) 330px; }
+.lab-body.wide-panel { grid-template-columns: minmax(0, 1fr) 360px; }
+.panel { border-left: 1px solid var(--rule); padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 14px; min-width: 0; }
+.panel .grp { display: flex; flex-direction: column; gap: 8px; }
+.panel .grp-label { font-size: var(--t-xs); letter-spacing: .1em; color: var(--ink-3); }
+@media (max-width: 900px) {
+  .lab-body, .lab-body.wide-panel { grid-template-columns: minmax(0, 1fr); }
+  .panel { border-left: 0; border-top: 1px solid var(--rule); }
+}
+
+.plot-wrap { position: relative; min-width: 0; background: var(--plot-bg); min-height: clamp(320px, 46vw, 500px); }
+.plot-wrap canvas { position: absolute; inset: 0; display: block; width: 100%; height: 100%; touch-action: pan-y; }
+.plot-wrap.short { min-height: clamp(220px, 28vw, 300px); }
+.plot-wrap.is-active { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--focus) 55%, transparent); }
+.plot-tools { position: absolute; top: max(10px, env(safe-area-inset-top, 0px)); right: 10px; display: flex; gap: 4px; }
+.plot-tools button { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 8px; border: 1px solid var(--rule-2); background: var(--panel); cursor: pointer; font-size: 15px; line-height: 1; color: var(--ink-2); }
+.plot-tools button:hover { color: var(--ink); border-color: var(--ink-3); }
+.plot-hint { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); padding: 8px 14px; border-radius: 8px; background: var(--ink); color: var(--panel); font-size: var(--t-sm); opacity: 0; pointer-events: none; transition: opacity .25s; white-space: nowrap; }
+.plot-hint.show { opacity: .92; }
+.plot-foot { display: flex; flex-wrap: wrap; gap: 4px 14px; padding: 8px 14px; border-top: 1px solid var(--rule); font-size: var(--t-xs); color: var(--ink-3); }
+.plot-foot kbd { font-family: var(--f-mono); font-size: .72rem; border: 1px solid var(--rule-2); border-radius: 4px; padding: 0 4px; }
+.formula-line { font-size: 1.05rem; min-height: 2.4em; display: flex; align-items: center; }
+.formula-line [hidden] { display: none !important; }
+
+.status { padding: 12px 14px; border-radius: 8px; background: var(--panel-2); border: 1px solid var(--rule); font-size: var(--t-sm); line-height: 1.7; }
+.status .verdict { font-weight: 700; font-size: var(--t-md); }
+.status .verdict.ok { color: var(--ok); }
+.status .verdict.bad { color: var(--bad); }
+.status p + p { margin-top: 4px; }
+.status.ok { border-color: color-mix(in srgb, var(--ok) 45%, var(--rule)); background: var(--ok-fill); }
+.status.bad { border-color: color-mix(in srgb, var(--bad) 45%, var(--rule)); background: var(--bad-fill); }
+
+.game { border: 1px solid var(--ink); border-radius: 8px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; font-size: var(--t-sm); }
+.game-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.game-top b { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .08em; }
+.pips { display: flex; gap: 4px; }
+.pips i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--ink-3); display: block; }
+.pips i.win { background: var(--ok); border-color: var(--ok); }
+.pips i.lose { background: var(--bad); border-color: var(--bad); }
+.pips i.cur { border-color: var(--ink); }
+.game-msg { line-height: 1.7; }
+.game-msg .big { font-family: var(--f-mono); font-size: 1.05rem; }
+
+/* ---------- negation stepper ---------- */
+.stepper { margin-top: 18px; background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 18px 18px 14px; max-width: 54rem; }
+.step-stage { min-height: 5.2em; display: grid; align-items: center; overflow-x: auto; }
+.step-stage .st { grid-area: 1 / 1; transition: opacity .3s, transform .3s; }
+.step-stage .st[aria-hidden="true"] { opacity: 0; transform: translateY(6px); pointer-events: none; }
+.step-rule { font-size: .95rem; color: var(--ink-2); min-height: 3.4em; border-top: 1px dashed var(--rule); padding-top: 10px; margin-top: 6px; }
+.step-nav { display: flex; align-items: center; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.dots { display: flex; gap: 6px; margin-left: auto; }
+.dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--rule-2); display: block; }
+.dots i.on { background: var(--ink); }
+.neg { fill: var(--bad); }
+.keep { fill: var(--delta); }
+
+/* ---------- recipe workshop ---------- */
+.recipe { margin-top: 22px; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 0; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.recipe-left { padding: 16px 18px; display: flex; flex-direction: column; gap: 14px; border-right: 1px solid var(--rule); min-width: 0; }
+.recipe-right { display: flex; flex-direction: column; min-width: 0; }
+.recipe-input { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.recipe-input label { font-family: var(--f-math); font-style: italic; font-size: 1.1rem; white-space: nowrap; }
+.txt { flex: 1 1 160px; min-width: 0; padding: 7px 10px; border-radius: 8px; border: 1px solid var(--rule-2); background: var(--plot-bg); font-family: var(--f-mono); font-size: .95rem; }
+.txt:focus { border-color: var(--focus); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--focus) 22%, transparent); }
+.txt.err { border-color: var(--bad); }
+.scratch { border: 1px dashed var(--rule-2); border-radius: 8px; padding: 10px 14px; font-size: .94rem; background: var(--plot-bg); }
+.scratch h5, .proof h5 { font-family: var(--f-display); font-size: var(--t-sm); margin: 0 0 6px; font-weight: 600; letter-spacing: .04em; }
+.scratch ol { margin: 0; padding-left: 1.2em; }
+.scratch li + li { margin-top: 6px; }
+.scratch li[hidden] { display: none; }
+.proof { border-left: 3px solid var(--ink); padding: 4px 0 4px 14px; font-size: .95rem; }
+.proof ol { list-style: none; margin: 0; padding: 0; }
+.proof li { padding: 3px 8px; border-radius: 6px; cursor: default; transition: background .15s; }
+.proof li[data-hl]:hover, .proof li[data-hl]:focus { background: var(--delta-fill); outline: none; }
+.proof li[data-hl] { cursor: help; }
+.recipe .plot-wrap { min-height: clamp(280px, 34vw, 380px); flex: 1 1 auto; }
+.recipe-status { padding: 10px 14px; border-top: 1px solid var(--rule); font-size: var(--t-sm); min-height: 4.4em; }
+@media (max-width: 900px) {
+  .recipe { grid-template-columns: minmax(0, 1fr); }
+  .recipe-left { border-right: 0; border-bottom: 1px solid var(--rule); }
+}
+
+/* ---------- Heine workshop ---------- */
+.slots { display: flex; flex-direction: column; gap: 10px; }
+.slot { border: 1px solid var(--rule); border-left: 4px solid var(--sc); border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 6px; background: var(--plot-bg); }
+.slot.off { opacity: .55; }
+.slot-top { display: flex; align-items: center; gap: 8px; }
+.slot-top .nm { font-family: var(--f-math); font-style: italic; color: var(--sc); font-size: 1.05rem; white-space: nowrap; }
+.slot-top .txt { padding: 4px 8px; font-size: .88rem; }
+.slot-info { font-size: var(--t-xs); line-height: 1.6; color: var(--ink-2); }
+.slot-info .ok { color: var(--ok); } .slot-info .bad { color: var(--bad); }
+.slot.a { --sc: var(--seq-a); } .slot.b { --sc: var(--seq-b); } .slot.c { --sc: var(--seq-c); }
+.slot .x { width: 26px; height: 26px; border-radius: 6px; border: 1px solid var(--rule-2); background: var(--panel); cursor: pointer; line-height: 1; flex: none; }
+.hn-plots { display: grid; grid-template-rows: minmax(0, 1fr) auto auto; min-width: 0; }
+.hn-plots .plot-wrap + .plot-wrap { border-top: 1px solid var(--rule); }
+.vlabel { position: absolute; left: 50%; transform: translateX(-50%); top: 6px; white-space: nowrap; font-size: var(--t-xs); color: var(--ink-3); pointer-events: none; }
+.verdict-box { padding: 10px 14px; border-top: 1px solid var(--rule); font-size: var(--t-sm); min-height: 3.4em; }
+.verdict-box .hl { font-weight: 700; }
+
+.collect { padding: 12px 16px 14px; border-top: 1px solid var(--rule); display: flex; flex-direction: column; gap: 10px; }
+.collect-head { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; font-size: var(--t-sm); }
+.numline { position: relative; height: 34px; margin: 0 10px; }
+.numline::before { content: ""; position: absolute; left: 0; right: 0; top: 14px; height: 2px; background: var(--rule-2); }
+.numline .tk { position: absolute; top: 9px; width: 1px; height: 12px; background: var(--ink-3); }
+.numline .tl { position: absolute; top: 18px; transform: translateX(-50%); font-family: var(--f-mono); font-size: .7rem; color: var(--ink-3); }
+.numline .pt { position: absolute; top: 9px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: var(--seq-a); border: 2px solid var(--plot-bg); box-shadow: 0 0 0 1px var(--seq-a); animation: pop .35s ease-out; }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+.insight { padding: 10px 14px; border-radius: 8px; background: var(--ok-fill); border: 1px solid color-mix(in srgb, var(--ok) 40%, var(--rule)); font-size: .94rem; }
+
+/* ---------- bridge ---------- */
+.bridge-table { width: 100%; border-collapse: collapse; font-family: var(--f-mono); font-size: var(--t-xs); font-variant-numeric: tabular-nums; }
+.bridge-table th, .bridge-table td { text-align: right; padding: 3px 6px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+.bridge-table th { font-family: var(--f-math); font-style: italic; font-weight: 400; font-size: .9rem; color: var(--ink-2); }
+.bridge-table tr:last-child td { color: var(--ink); font-weight: 600; }
+.table-scroll { overflow-x: auto; }
+
+/* ---------- comparison table ---------- */
+.cmp { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: .94rem; background: var(--panel); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; }
+.cmp th, .cmp td { padding: 12px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; text-align: left; }
+.cmp thead th { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 400; background: var(--panel-2); }
+.cmp tbody th { font-family: var(--f-display); white-space: nowrap; font-size: .98rem; }
+.cmp tbody tr { transition: background .15s; }
+.cmp tbody tr:hover { background: var(--panel-2); }
+.cmp .need { font-size: var(--t-xs); white-space: nowrap; }
+.cmp-scroll { overflow-x: auto; }
+.cmp-scroll .cmp { min-width: 760px; }
+
+/* ---------- map ---------- */
+.map-grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 0; margin-top: 22px; background: var(--panel); border: 1px solid var(--rule); border-radius: 14px; box-shadow: var(--shadow); overflow: hidden; }
+.map-svg-wrap { padding: 10px; border-right: 1px solid var(--rule); background: var(--plot-bg); min-width: 0; overflow-x: auto; }
+.map-svg-wrap svg { display: block; width: 100%; min-width: 440px; height: auto; }
+.map-proof { padding: 18px 20px; min-width: 0; font-size: .95rem; }
+.map-proof h4 { font-size: 1.08rem; margin-bottom: 6px; }
+.map-proof ol { padding-left: 1.3em; margin: 10px 0 0; }
+.map-proof li + li { margin-top: 8px; }
+.map-proof .where { margin-top: 12px; font-size: var(--t-sm); color: var(--ink-2); }
+.map-proof .pf[hidden] { display: none; }
+@media (max-width: 900px) { .map-grid { grid-template-columns: minmax(0, 1fr); } .map-svg-wrap { border-right: 0; border-bottom: 1px solid var(--rule); } }
+.mnode rect { fill: var(--panel); stroke: var(--ink); stroke-width: 1.5; }
+.mnode.r rect { fill: var(--panel-2); stroke: var(--rule-2); stroke-dasharray: 4 3; }
+.mnode text { fill: var(--ink); font-family: var(--f-display); font-weight: 700; font-size: 17px; text-anchor: middle; }
+.mnode text.s { font-family: var(--f-body); font-weight: 400; font-size: 12px; fill: var(--ink-2); }
+.marrow { cursor: pointer; }
+.marrow path.vis { fill: none; stroke: var(--ink-3); stroke-width: 2; transition: stroke .2s, stroke-width .2s; }
+.marrow path.hit { fill: none; stroke: transparent; stroke-width: 22; }
+.marrow .lbl rect { fill: var(--panel); stroke: var(--ink-3); stroke-width: 1; transition: fill .2s, stroke .2s; }
+.marrow .lbl text { fill: var(--ink); font-family: var(--f-body); font-size: 12.5px; text-anchor: middle; }
+.marrow:hover path.vis, .marrow:focus path.vis { stroke: var(--ink); }
+.marrow.on path.vis { stroke: var(--delta); stroke-width: 3; }
+.marrow.on .lbl rect { fill: var(--delta); stroke: var(--delta); }
+.marrow.on .lbl text { fill: var(--panel); }
+.marrow:focus { outline: none; }
+.marrow:focus-visible .lbl rect { stroke: var(--focus); stroke-width: 2.5; }
+.mhead { fill: var(--ink-3); }
+.marrow.on .mhead, .mhead.on { fill: var(--delta); }
+.mdash { stroke: var(--rule-2); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+
+.guide { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: .94rem; }
+.guide th, .guide td { padding: 10px 12px; border-bottom: 1px solid var(--rule); text-align: left; vertical-align: top; }
+.guide thead th { font-family: var(--f-mono); font-size: var(--t-xs); letter-spacing: .1em; color: var(--ink-3); font-weight: 400; }
+.guide td:first-child { font-weight: 500; }
+
+/* ---------- practice ---------- */
+.prac-top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-top: 8px; }
+.progress { flex: 1 1 260px; height: 8px; border-radius: 99px; background: var(--rule); overflow: hidden; max-width: 420px; }
+.progress i { display: block; height: 100%; background: var(--ok); width: 0; transition: width .4s; }
+.ex-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 16px; margin-top: 18px; }
+.ex { background: var(--panel); border: 1px solid var(--rule); border-radius: 12px; padding: 16px 18px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.ex.solved { border-color: color-mix(in srgb, var(--ok) 55%, var(--rule)); }
+.ex-head { display: flex; align-items: baseline; gap: 10px; }
+.ex-no { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3); }
+.ex-topic { font-size: var(--t-xs); padding: 0 8px; border-radius: 99px; border: 1px solid var(--rule-2); color: var(--ink-2); }
+.ex-head .tick { margin-left: auto; color: var(--ok); font-weight: 700; font-size: var(--t-sm); }
+.ex-q { line-height: 1.7; }
+.opts { display: flex; flex-direction: column; gap: 6px; }
+.opt { display: flex; gap: 10px; align-items: flex-start; text-align: left; padding: 8px 12px; border-radius: 8px; border: 1px solid var(--rule); background: var(--plot-bg); cursor: pointer; line-height: 1.6; min-width: 0; overflow-x: auto; }
+.opt:hover { border-color: var(--ink-3); }
+.opt .key { font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3); margin-top: 3px; flex: none; }
+.opt[aria-pressed="true"] { border-color: var(--ink); box-shadow: inset 3px 0 0 var(--ink); }
+.opt.right { border-color: var(--ok); background: var(--ok-fill); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-fill); }
+.ex-actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.ex-fb { font-size: .94rem; line-height: 1.7; padding: 10px 12px; border-radius: 8px; }
+.ex-fb.ok { background: var(--ok-fill); border: 1px solid color-mix(in srgb, var(--ok) 40%, var(--rule)); }
+.ex-fb.bad { background: var(--bad-fill); border: 1px solid color-mix(in srgb, var(--bad) 40%, var(--rule)); }
+.ex-fb.info { background: var(--panel-2); border: 1px solid var(--rule); }
+.ex-sol { font-size: .94rem; border-top: 1px dashed var(--rule-2); padding-top: 10px; }
+.order-pool, .order-built { display: flex; flex-direction: column; gap: 6px; min-height: 44px; padding: 8px; border-radius: 8px; border: 1px dashed var(--rule-2); }
+.order-built { border-style: solid; background: var(--plot-bg); counter-reset: st; }
+.order-built .opt::before { counter-increment: st; content: counter(st) "."; font-family: var(--f-mono); font-size: var(--t-xs); color: var(--ink-3); margin-top: 3px; }
+.order-cap { font-size: var(--t-xs); color: var(--ink-3); font-family: var(--f-mono); letter-spacing: .08em; }
+
+/* ---------- footer ---------- */
+.foot { border-top: 1px solid var(--rule); margin-top: 64px; padding-block: 28px 48px; color: var(--ink-3); font-size: var(--t-sm); }
+.summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+.summary > div { padding: 14px 16px; border-top: 3px solid var(--k); background: var(--panel); border-radius: 0 0 8px 8px; font-size: .94rem; min-width: 0; overflow-x: auto; }
+.summary h4 { font-size: 1rem; margin-bottom: 6px; }
+@media (max-width: 760px) { .summary { grid-template-columns: minmax(0, 1fr); } }
+.k-eps { --k: var(--eps); } .k-seq { --k: var(--seq-a); } .k-cau { --k: var(--cau); }
+.ex-q, .theorem, .note > div, .qexplain, .map-proof li { overflow-x: auto; overflow-y: hidden; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-in">
+    <a class="brand" href="#top"><span class="brand-mark">lim</span>函数极限实验室</a>
+    <nav class="toc" aria-label="章节导航">
+      <a href="#scope">显微镜</a>
+      <a href="#ed">ε–δ</a>
+      <a href="#heine">Heine</a>
+      <a href="#cauchy">Cauchy</a>
+      <a href="#map">关系图</a>
+      <a href="#practice">Practice</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="wrap">
+
+<!-- ================= HERO ================= -->
+<section class="hero" id="scope">
+  <p class="eyebrow">数学分析 · 函数极限 · 交互实验</p>
+  <h1><span class="lim">lim</span>函数极限实验室</h1>
+  <p class="hero-sub">from intuition to rigorous proof</p>
+  <p class="lede">把 ε–δ 定义、Heine 归结原理与 Cauchy 准则放进同一组图像里。拖动误差带、自由缩放、亲手构造数列、和电脑对弈——自己发现三种说法为什么等价，以及各自擅长证明什么。</p>
+
+  <div class="scope" aria-label="极限显微镜">
+    <div class="scope-bar">
+      <strong style="font-family:var(--f-display)">极限显微镜</strong>
+      <div class="zoom">
+        <label for="scope-k" class="muted" style="font-size:var(--t-sm);white-space:nowrap">放大</label>
+        <input type="range" id="scope-k" min="0" max="7" step="0.01" value="0.2" aria-label="放大倍数（对数刻度）">
+        <span class="zoom-read">视窗 |x| &lt; <span id="scope-w">—</span></span>
+      </div>
+      <button class="btn" id="scope-play" type="button">▶ 自动放大</button>
+    </div>
+    <div class="scope-lenses">
+      <div class="lens">
+        <div class="lens-head"><span class="fx">$f(x)=\sin\dfrac1x$</span><span class="lens-read">视窗内振幅 ω = <span id="scope-om-l">—</span></span></div>
+        <canvas id="scope-l" aria-label="sin(1/x) 在 0 附近的图像"></canvas>
+        <span class="lens-verdict" id="scope-v-l">—</span>
+      </div>
+      <div class="lens">
+        <div class="lens-head"><span class="fx">$g(x)=x\sin\dfrac1x$</span><span class="lens-read">视窗内振幅 ω = <span id="scope-om-r">—</span></span></div>
+        <canvas id="scope-r" aria-label="x·sin(1/x) 在 0 附近的图像"></canvas>
+        <span class="lens-verdict" id="scope-v-r">—</span>
+      </div>
+    </div>
+    <p class="scope-cap">两边横轴同步放大、纵轴固定在 $[-1.3,\,1.3]$，琥珀色带是 $|y|&lt;\varepsilon=0.25$。右边：视窗缩到 $|x|&lt;0.25$ 以内，整段曲线就被锁进这条带（变绿），因为 $|x\sin\frac1x|\le|x|$。左边：无论放大多少倍，图像都铺满 $[-1,1]$，永远装不进去。<strong>“极限为 $A$”就是：足够靠近 $a$ 时，函数值被锁进以 $A$ 为中心、任意窄的水平带。</strong>下面三章给这句话三种严格说法。</p>
+  </div>
+
+  <div class="lenses3">
+    <a class="lens3" href="#ed" style="--k:var(--eps)">
+      <span class="k-sym">∀ε ∃δ</span>
+      <h3>ε–δ 定义</h3>
+      <p>对手给误差 ε，你找范围 δ。量词次序决定了谁先出招。</p>
+      <span class="use">最适合：已经知道（或猜到）极限值 A 时证明存在</span>
+    </a>
+    <a class="lens3" href="#heine" style="--k:var(--seq-a)">
+      <span class="k-sym">{xₙ} → a</span>
+      <h3>Heine 归结原理</h3>
+      <p>用数列当探针：所有逼近 a 的路径都必须得到同一个结论。</p>
+      <span class="use">最适合：证明极限不存在；把数列结论搬到函数上</span>
+    </a>
+    <a class="lens3" href="#cauchy" style="--k:var(--cau)">
+      <span class="k-sym">|f(x′) − f(x″)|</span>
+      <h3>Cauchy 准则</h3>
+      <p>不提 A，只比较函数值彼此之间是否越来越接近。</p>
+      <span class="use">最适合：不知道极限值时判断存在性；不存在性的反证</span>
+    </a>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 1: ε–δ ================= -->
+<section class="chapter ch-ed" id="ed">
+  <div class="chap-head">
+    <span class="chap-sym">∀ε ∃δ</span>
+    <div><p class="eyebrow">第 1 章</p><h2>ε–δ 定义：一场量词博弈</h2></div>
+  </div>
+  <div class="prose">
+    <p>设 $f$ 在点 $a$ 的某个去心邻域内有定义。$\displaystyle\lim_{x\to a}f(x)=A$ 的定义是：</p>
+  </div>
+  <div class="display ed-def" id="ed-def">$$\class{q-eps}{\forall\,\varepsilon>0},\quad \class{q-delta}{\exists\,\delta>0},\quad \class{q-x}{\forall\,x:\ 0&lt;|x-a|&lt;\delta}\ \Longrightarrow\ \class{q-judge}{|f(x)-A|&lt;\varepsilon}.$$</div>
+  <div class="prose"><p>四个部分，就是一场两人游戏里的四步。点击每一步，看看是谁在出招、能看到什么信息：</p></div>
+
+  <div class="qgame">
+    <div class="qrow" id="q-row">
+      <button class="qchip adv" type="button" data-q="eps" aria-pressed="false"><span class="who">① 对手</span><span>$\forall\varepsilon>0$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip you" type="button" data-q="delta" aria-pressed="false"><span class="who">② 你</span><span>$\exists\delta>0$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip adv" type="button" data-q="x" aria-pressed="false"><span class="who">③ 对手</span><span>$\forall x,\ 0&lt;|x-a|&lt;\delta$</span></button>
+      <span class="qarrow">→</span>
+      <button class="qchip judge" type="button" data-q="judge" aria-pressed="false"><span class="who">④ 判定</span><span>$|f(x)-A|&lt;\varepsilon$</span></button>
+    </div>
+    <div class="qexplain" id="q-explain" aria-live="polite">
+      <div data-q="intro">把“$\lim f=A$ 为真”读成：<strong>你有必胜策略</strong>——不论对手怎样出招，你都能赢。点上面任何一步查看说明。</div>
+      <div data-q="eps" hidden><strong>对手先出招。</strong>$\varepsilon$ 是允许的误差，由对手任意指定。你不能挑 $\varepsilon$，必须准备好应对每一个 $\varepsilon$——真正的考验在 $\varepsilon$ 很小的时候。</div>
+      <div data-q="delta" hidden><strong>你看到 $\varepsilon$ 之后再选 $\delta$。</strong>因为 $\exists\delta$ 写在 $\forall\varepsilon$ 之后，$\delta$ 可以依赖 $\varepsilon$，常写作 $\delta(\varepsilon)$。证明里那句“取 $\delta=\min\{1,\varepsilon/5\}$”，就是在写下你的应对策略。</div>
+      <div data-q="x" hidden><strong>对手在去心邻域里任挑 $x$。</strong>条件 $0&lt;|x-a|$ 排除了 $x=a$：极限只关心 $a$ <em>附近</em>的值，与 $f(a)$ 是多少、甚至 $f(a)$ 有没有定义都无关。</div>
+      <div data-q="judge" hidden><strong>判定胜负。</strong>若 $|f(x)-A|&lt;\varepsilon$，你赢这一局。命题成立 ⇔ 对<em>每一个</em> $\varepsilon$ 你都有办法赢——你的 $\delta(\varepsilon)$ 就是“必胜策略”。</div>
+    </div>
+    <div class="qswap">
+      <div class="qswap-row">
+        <button class="btn" type="button" id="q-swap" aria-expanded="false">⇄ 如果交换前两个量词？</button>
+        <span class="muted" style="font-size:var(--t-sm)">次序不是装饰——交换后命题完全变了</span>
+      </div>
+      <div class="qswap-body" id="q-swap-body" hidden>
+        <div class="display">$$\exists\,\delta>0,\ \forall\,\varepsilon>0,\ \forall x:\ 0&lt;|x-a|&lt;\delta\ \Longrightarrow\ |f(x)-A|&lt;\varepsilon.$$</div>
+        <p>现在你必须<strong>先</strong>选 $\delta$，而且这一个 $\delta$ 要同时对付所有 $\varepsilon$。对固定的 $x$，“对所有 $\varepsilon>0$ 都有 $|f(x)-A|&lt;\varepsilon$”只能意味着 $f(x)=A$。所以交换后的命题说的是：<strong>$f$ 在 $a$ 的某个去心邻域内恒等于 $A$</strong>。这比“极限为 $A$”强得多：$\lim_{x\to2}x^2=4$ 成立，交换后的命题却不成立。教训：$\delta$ 能依赖 $\varepsilon$，正是因为 $\exists\delta$ 写在 $\forall\varepsilon$ 之后。</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 1.2 lab -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.2</span><h3>ε–δ 盒子：亲手当一回对手和证明者</h3></div>
+    <div class="prose"><p>琥珀色水平带是 $|y-A|&lt;\varepsilon$，青色竖带是 $0&lt;|x-a|&lt;\delta$。δ 带内的曲线全部落进 ε 带时显示为绿色——这个 $\delta$ 合格；一旦有一段变红，对手就抓到了反例。图上的虚线可以直接拖动。</p></div>
+    <div class="lab" id="ed-lab">
+      <div class="lab-head"><h4>实验台 1 · ε–δ 盒子</h4><p>三种模式：自由探索；<strong>你来证明</strong>（电脑出 ε，你选 δ）；<strong>你来反驳</strong>（你选 ε₀，电脑出 δ，你在图上点出反例 x）。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="ed-canvas" aria-label="ε–δ 盒子图像，可缩放平移"></canvas>
+          <div class="plot-tools" id="ed-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准 δ 窗口" title="对准 δ 窗口">⌖</button>
+            <button type="button" data-z="home" aria-label="复位视图" title="复位">⟲</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数</span>
+            <div class="chips" id="ed-fns">
+              <button class="chip" type="button" data-v="sq">$x^2$</button>
+              <button class="chip" type="button" data-v="hole">$\frac{x^2-1}{x-1}$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+            </div>
+            <div class="formula-line" id="ed-formula">
+              <span data-k="sq">$\displaystyle\lim_{x\to 2}x^2\overset{?}{=}A$</span>
+              <span data-k="hole" hidden>$\displaystyle\lim_{x\to 1}\frac{x^2-1}{x-1}\overset{?}{=}A$</span>
+              <span data-k="sinc" hidden>$\displaystyle\lim_{x\to 0}\frac{\sin x}{x}\overset{?}{=}A$</span>
+              <span data-k="xsin" hidden>$\displaystyle\lim_{x\to 0}x\sin\frac1x\overset{?}{=}A$</span>
+              <span data-k="sgn" hidden>$\displaystyle\lim_{x\to 0}\operatorname{sgn}x\overset{?}{=}A$</span>
+              <span data-k="sin1x" hidden>$\displaystyle\lim_{x\to 0}\sin\frac1x\overset{?}{=}A$</span>
+            </div>
+          </div>
+          <div class="seg" id="ed-modes" role="group" aria-label="模式">
+            <button type="button" data-v="free" aria-pressed="true">自由探索</button>
+            <button type="button" data-v="prove" aria-pressed="false">你来证明</button>
+            <button type="button" data-v="refute" aria-pressed="false">你来反驳</button>
+          </div>
+          <div class="grp">
+            <label class="sl"><span class="sl-name">候选极限 <i class="m">A</i></span><output id="ed-A-out">—</output><input type="range" id="ed-A" min="0" max="1" step="0.0005"></label>
+            <label class="sl eps"><span class="sl-name">误差 <i class="m">ε</i>（对数刻度）</span><output id="ed-eps-out">—</output><input type="range" id="ed-eps"></label>
+            <label class="sl delta"><span class="sl-name">范围 <i class="m">δ</i>（对数刻度）</span><output id="ed-delta-out">—</output><input type="range" id="ed-delta"></label>
+            <div class="btns">
+              <button class="btn sm" type="button" id="ed-snapA">A = 真实极限</button>
+              <label class="check"><input type="checkbox" id="ed-follow"> 视窗跟随 δ</label>
+              <label class="check"><input type="checkbox" id="ed-showmax" checked> 显示最大可行 δ</label>
+            </div>
+          </div>
+          <div class="status" id="ed-status" aria-live="polite"></div>
+          <div class="game" id="ed-game" hidden></div>
+        </div>
+      </div>
+      <div class="plot-foot"><span>点击图像激活后：<kbd>滚轮</kbd> 缩放 · <kbd>Shift</kbd>+滚轮 只缩放横轴 · 拖动平移 · 双指捏合缩放</span><span>“数值检验”在去心邻域内取约 3200 个点，并加入函数的已知极值点</span></div>
+    </div>
+    <div class="note"><span class="tag info">观察</span><div>选 $\sin\frac1x$ 并把 $\delta$ 拖到极小：δ 带里永远有完整的振荡，反例永远存在。再试 $\varepsilon>1+|A|$：任何 $\delta$ 都合格——<strong>大 ε 总是容易的，定义的分量全在“任意小的 ε”上</strong>。</div></div>
+  </div>
+
+  <!-- 1.3 negation -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.3</span><h3>机械地写出否定</h3></div>
+    <div class="prose"><p>要证明“极限不是 $A$”，需要先把定义的否定写对。规则只有两条：$\neg\forall=\exists\neg$，$\neg\exists=\forall\neg$；最后 $\neg(P\Rightarrow Q)\equiv P\wedge\neg Q$。一步一步推：</p></div>
+    <div class="stepper" id="neg">
+      <div class="step-stage">
+        <div class="st">$$\class{neg}{\neg}\Big[\forall\varepsilon>0\ \exists\delta>0\ \forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\class{neg}{\exists\varepsilon>0\ \neg}\Big[\exists\delta>0\ \forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\exists\varepsilon>0\ \class{neg}{\forall\delta>0\ \neg}\Big[\forall x\ \big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)\Big]$$</div>
+        <div class="st">$$\exists\varepsilon>0\ \forall\delta>0\ \class{neg}{\exists x\ \neg}\big(0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\varepsilon\big)$$</div>
+        <div class="st">$$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x:\ \class{keep}{0&lt;|x-a|&lt;\delta}\ \ \text{且}\ \ \class{neg}{|f(x)-A|\ge\varepsilon_0}$$</div>
+      </div>
+      <div class="step-rule" id="neg-rule" aria-live="polite"></div>
+      <div class="step-nav">
+        <button class="btn" type="button" id="neg-prev">← 上一步</button>
+        <button class="btn primary" type="button" id="neg-next">下一步 →</button>
+        <div class="dots" id="neg-dots"></div>
+      </div>
+    </div>
+    <div class="cards">
+      <div class="note"><span class="tag">易错</span><div>否定之后，$x$ 的条件 $0&lt;|x-a|&lt;\delta$ <strong>原样保留</strong>（反例必须取在去心邻域里），只有结论 $|f(x)-A|&lt;\varepsilon$ 变成 $\ge$。写成 “$|x-a|\ge\delta$” 是最常见的错误。</div></div>
+      <div class="note"><span class="tag">易错</span><div>要证明“极限<strong>不存在</strong>”，必须对<strong>每一个</strong> $A$ 都完成上面的论证：$\forall A\in\mathbb R\ \exists\varepsilon_0\ \forall\delta\ \exists x\cdots$。直接这样写很笨重——第 3 章的 Cauchy 准则能把 $A$ 消掉。</div></div>
+    </div>
+  </div>
+
+  <!-- 1.4 recipe -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">1.4</span><h3>从草稿到证明：写出你的 δ(ε) 配方</h3></div>
+    <div class="prose"><p>在 1.2 里赢几局不算证明：证明需要一个对<strong>每个</strong> $\varepsilon$ 都有效的公式 $\delta(\varepsilon)$。写出你的配方，电脑会在 $\varepsilon\in[10^{-6},10^{3}]$ 上取 360 个值逐一检验。右图横轴是 $\varepsilon$、纵轴是 $\delta$（都是对数刻度）；青色区域是“安全区” $\delta\le\delta_{\max}(\varepsilon)$，你的曲线必须整条待在里面。</p></div>
+    <div class="recipe" id="rc">
+      <div class="recipe-left">
+        <div class="chips" id="rc-targets">
+          <button class="chip" type="button" data-v="sq">$\lim\limits_{x\to2}x^2=4$</button>
+          <button class="chip" type="button" data-v="recip">$\lim\limits_{x\to1}\frac1x=1$</button>
+          <button class="chip" type="button" data-v="xsin">$\lim\limits_{x\to0}x\sin\frac1x=0$</button>
+        </div>
+        <div class="recipe-input">
+          <label for="rc-in">δ(ε) =</label>
+          <input class="txt" id="rc-in" type="text" spellcheck="false" autocomplete="off" value="eps/5" aria-describedby="rc-help">
+          <button class="btn primary" type="button" id="rc-go">让电脑检验</button>
+        </div>
+        <p id="rc-help" class="muted" style="font-size:var(--t-xs)">可用：eps 或 ε、min( , )、max( , )、sqrt( )、+ − * / ^、括号。例：min(1, eps/5)</p>
+        <div class="grp"><span class="grp-label">试试这些配方</span><div class="chips" id="rc-presets"></div></div>
+        <div class="scratch" id="rc-scratch"></div>
+        <div class="proof" id="rc-proof"></div>
+      </div>
+      <div class="recipe-right">
+        <div class="plot-wrap"><canvas id="rc-canvas" aria-label="δ(ε) 检验图"></canvas></div>
+        <div class="recipe-status" id="rc-status" aria-live="polite"></div>
+      </div>
+    </div>
+    <div class="note"><span class="tag info">要点</span><div>$\delta$ 不唯一：安全区里的<em>任何</em>曲线都是合格的策略。$\delta_{\max}(\varepsilon)$ 往往写不出初等表达式（比如 $x\sin\frac1x$ 那条锯齿边界），证明只需要一个<strong>够用</strong>的 $\delta$。另外，数值检验只是证据；把鼠标移到正式证明的每一行，看它对应图上的哪一部分。</div></div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 2: HEINE ================= -->
+<section class="chapter ch-heine" id="heine">
+  <div class="chap-head">
+    <span class="chap-sym">{xₙ} → a</span>
+    <div><p class="eyebrow">第 2 章</p><h2>Heine 归结原理：用数列当探针</h2></div>
+  </div>
+  <div class="prose">
+    <p>函数极限说的是“$x$ 以<strong>任何方式</strong>靠近 $a$”。一个数列 $x_n\to a$ 就是一种具体的靠近方式——一条路径。归结原理说：函数极限恰好是所有路径的共同结论。</p>
+  </div>
+  <div class="theorem">
+    <p class="t-name">定理（归结原则 / Heine）</p>
+    <p>设 $f$ 在 $U^\circ(a;\delta')$ 内有定义。则 $\lim\limits_{x\to a}f(x)=A$ 的充要条件是：对任何含于 $U^\circ(a;\delta')$ 且以 $a$ 为极限的数列 $\{x_n\}$（于是 $x_n\neq a$），都有 $\lim\limits_{n\to\infty}f(x_n)=A$。</p>
+  </div>
+  <div class="cards">
+    <div class="note"><span class="tag info">用法一</span><div><strong>证明不存在。</strong>找两个数列 $x_n\to a$、$y_n\to a$（都 $\ne a$），使 $f(x_n)$、$f(y_n)$ 收敛到不同的值；或者找一个数列使 $f(x_n)$ 发散。</div></div>
+    <div class="note"><span class="tag info">用法二</span><div><strong>函数与数列互相转化。</strong>由 $\lim_{x\to0}\frac{\sin x}{x}=1$ 取 $x_n=\frac1n$，立得 $\lim_{n\to\infty}n\sin\frac1n=1$；反过来也可以把数列极限的四则运算、夹逼定理搬到函数上。</div></div>
+  </div>
+
+  <!-- 2.2 workshop -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.2</span><h3>数列工坊</h3></div>
+    <div class="prose"><p>最多同时放三个数列。上图把点 $(x_n,f(x_n))$ 画在函数图像上，下图记录 $f(x_n)$ 随 $n$ 的变化。在输入框里写关于 <code>n</code> 的任何公式，或者点“交错”把前两个数列合成 $x_1,y_1,x_2,y_2,\dots$。</p></div>
+    <div class="lab" id="hn-lab">
+      <div class="lab-head"><h4>实验台 2 · 数列工坊</h4><p>播放时视窗会追着 $x_n$ 放大。关掉“镜头跟随”就可以自由缩放、拖动。</p></div>
+      <div class="lab-body wide-panel">
+        <div class="hn-plots">
+          <div class="plot-wrap">
+            <canvas id="hn-canvas" aria-label="函数图像与数列点"></canvas>
+            <div class="plot-tools" id="hn-tools">
+              <button type="button" data-z="in" aria-label="放大">＋</button>
+              <button type="button" data-z="out" aria-label="缩小">－</button>
+              <button type="button" data-z="home" aria-label="复位视图">⟲</button>
+            </div>
+            <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+          </div>
+          <div class="plot-wrap short">
+            <canvas id="hn-vcanvas" aria-label="f(x_n) 随 n 变化"></canvas>
+            <span class="vlabel">f(xₙ) 随 n 的变化</span>
+          </div>
+          <div class="verdict-box" id="hn-verdict" aria-live="polite"></div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数（a = 0）</span>
+            <div class="chips" id="hn-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sinpix">$\sin\frac{\pi}{x}$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+            </div>
+          </div>
+          <div class="slots" id="hn-slots">
+            <div class="slot a" data-i="0"><div class="slot-top"><span class="nm">xₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第一个数列的通项"><button class="x" type="button" aria-label="开关第一个数列">✓</button></div><div class="slot-info"></div></div>
+            <div class="slot b" data-i="1"><div class="slot-top"><span class="nm">yₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第二个数列的通项"><button class="x" type="button" aria-label="开关第二个数列">✓</button></div><div class="slot-info"></div></div>
+            <div class="slot c off" data-i="2"><div class="slot-top"><span class="nm">zₙ</span><input class="txt" type="text" list="hn-lib" spellcheck="false" autocomplete="off" aria-label="第三个数列的通项" placeholder="例如 (-1)^n/n"><button class="x" type="button" aria-label="开关第三个数列">○</button></div><div class="slot-info"></div></div>
+          </div>
+          <datalist id="hn-lib">
+            <option value="1/n"></option><option value="-1/n"></option><option value="(-1)^n/n"></option>
+            <option value="1/(n*pi)"></option><option value="1/(pi/2 + 2n*pi)"></option><option value="1/(3pi/2 + 2n*pi)"></option>
+            <option value="2/(4n+1)"></option><option value="1/sqrt(n)"></option>
+          </datalist>
+          <div class="btns">
+            <button class="btn" type="button" id="hn-mix">交错 xₙ, yₙ → zₙ</button>
+            <button class="btn" type="button" id="hn-reset">恢复示例</button>
+          </div>
+          <div class="grp">
+            <label class="sl"><span class="sl-name">显示前 <i class="m">N</i> 项</span><output id="hn-N-out">30</output><input type="range" id="hn-N" min="1" max="200" step="1" value="30"></label>
+            <div class="btns">
+              <button class="btn primary" type="button" id="hn-play">▶ 播放 n → ∞</button>
+              <label class="check"><input type="checkbox" id="hn-follow" checked> 镜头跟随</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="collect" id="hn-collect">
+        <div class="collect-head"><strong>收集挑战（$\sin\frac1x$）</strong><span class="muted">构造 $x_n\to0$ 使 $\sin\frac{1}{x_n}$ 收敛到下面每个目标值。收敛到的值会被记在数轴上。</span></div>
+        <div class="chips" id="hn-targets"></div>
+        <div class="numline" id="hn-numline" aria-label="已收集的极限值"></div>
+        <div class="btns"><button class="btn sm" type="button" id="hn-hint">给我一点提示</button></div>
+        <div class="insight" id="hn-insight" hidden></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 2.3 bridge -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.3</span><h3>为什么数列“够用”：从 ε–δ 的否定造出坏数列</h3></div>
+    <div class="prose">
+      <p>“⇒”方向是直接代入（见第 4 章）。难的是“⇐”：凭什么检验数列就能断定函数极限？用逆否命题。设 $\lim_{x\to a}f(x)=A$ <strong>不成立</strong>，由 1.3 的否定：存在 $\varepsilon_0>0$，对每个 $\delta>0$ 都有坏点 $x$。<strong>让 $\delta$ 依次取 $1,\frac12,\frac13,\dots$</strong>，每一步取出一个坏点 $x_n$：</p>
+    </div>
+    <div class="display">$$0&lt;|x_n-a|&lt;\frac1n,\qquad |f(x_n)-A|\ge\varepsilon_0 .$$</div>
+    <div class="prose"><p>前一式给出 $x_n\to a$ 且 $x_n\ne a$；后一式说明 $f(x_n)\not\to A$。于是“所有数列都给出 $A$”不成立。下面用 $f(x)=\sin\frac1x$ 实际跑一遍这台“坏点机器”：无论你声称极限是哪个 $A$，取 $\varepsilon_0=1$ 都行，因为 $\sin\frac1x$ 在任何去心邻域里都同时取到 $1$ 和 $-1$。</p></div>
+    <div class="lab" id="br-lab">
+      <div class="lab-head"><h4>实验台 3 · 坏点机器</h4><p>每按一次，δ 缩为 1/n，机器从 $(0,\frac1n)$ 里取出一个满足 $|f(x_n)-A|\ge1$ 的点。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="br-canvas" aria-label="坏点机器图像"></canvas>
+          <div class="plot-tools" id="br-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准当前 δ">⌖</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <label class="sl"><span class="sl-name">你声称的极限 <i class="m">A</i></span><output id="br-A-out">0</output><input type="range" id="br-A" min="-1.5" max="1.5" step="0.01" value="0"></label>
+          <div class="btns">
+            <button class="btn primary" type="button" id="br-next">下一步：n → n+1</button>
+            <button class="btn" type="button" id="br-jump">跳到 n = 1000</button>
+            <button class="btn" type="button" id="br-reset">重来</button>
+          </div>
+          <div class="table-scroll"><table class="bridge-table"><thead><tr><th>n</th><th>δ = 1/n</th><th>xₙ</th><th>f(xₙ)</th><th>|f(xₙ) − A|</th></tr></thead><tbody id="br-rows"></tbody></table></div>
+          <p class="muted" style="font-size:var(--t-sm)" id="br-rule"></p>
+        </div>
+      </div>
+    </div>
+    <div class="note"><span class="tag info">细节</span><div>每一步“取出一个”坏点，严格地说用到了（可数）选择公理；数学分析课程中默认可用。对 $\sin\frac1x$ 则不需要：坏点有明确公式 $x_n=\dfrac{1}{\frac\pi2+2k\pi}$（$k$ 取使 $x_n&lt;\frac1n$ 的最小整数）。</div></div>
+  </div>
+
+  <!-- 2.4 pitfalls -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">2.4</span><h3>三个容易踩的坑</h3></div>
+    <div class="cards">
+      <div class="note"><span class="tag">坑 1</span><div><strong>一个数列不够。</strong>$f(x)=\sin\frac{\pi}{x}$，取 $x_n=\frac1n$ 得 $f(x_n)=\sin n\pi=0\to0$；但取 $x_n=\frac{2}{4n+1}$ 得 $f(x_n)=1$。定理要求<em>所有</em>数列。<br><button class="btn sm" type="button" data-open="heine:sinpix" style="margin-top:6px">在工坊里试试</button></div></div>
+      <div class="note"><span class="tag">坑 2</span><div><strong>$x_n\ne a$ 不能省。</strong>令 $f(x)=0\ (x\ne0)$，$f(0)=1$。显然 $\lim_{x\to0}f(x)=0$，但常数列 $x_n\equiv0$ 给出 $f(x_n)=1$。极限从不看 $f(a)$。</div></div>
+      <div class="note"><span class="tag">坑 3</span><div><strong>有限次实验不是证明。</strong>工坊里试了一百个数列都给出 $0$，也只是“与极限为 $0$ 相容”。要证明存在，回到 ε–δ 或 Cauchy；要证明不存在，两个数列就够了——这就是归结原理在反证中如此好用的原因。</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 3: CAUCHY ================= -->
+<section class="chapter ch-cauchy" id="cauchy">
+  <div class="chap-head">
+    <span class="chap-sym">|f(x′) − f(x″)|</span>
+    <div><p class="eyebrow">第 3 章</p><h2>Cauchy 准则：不知道极限值也能判断</h2></div>
+  </div>
+  <div class="prose"><p>ε–δ 定义有个麻烦：必须先拿出 $A$。如果猜不到 $A$，或者要证明<em>不存在</em>（这时得对每个 $A$ 都论证），就需要一个不提 $A$ 的判别法。</p></div>
+  <div class="theorem">
+    <p class="t-name">定理（函数极限的 Cauchy 准则）</p>
+    <p>设 $f$ 在 $U^\circ(a;\delta')$ 内有定义。$\lim\limits_{x\to a}f(x)$ 存在的充要条件是：任给 $\varepsilon>0$，存在正数 $\delta\ (&lt;\delta')$，使得对任何 $x',x''\in U^\circ(a;\delta)$，有 $|f(x')-f(x'')|&lt;\varepsilon$。</p>
+  </div>
+  <div class="prose" style="margin-top:14px"><p>几何上看，这等于说<strong>振幅</strong> $\omega(\delta)=\sup\limits_{U^\circ(a;\delta)}f-\inf\limits_{U^\circ(a;\delta)}f$ 在 $\delta\to0^+$ 时趋于 $0$：δ 窗口里的函数值被挤进一条越来越窄、但位置事先不知道的带子。</p></div>
+
+  <!-- 3.2 oscillation lab -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.2</span><h3>振幅计</h3></div>
+    <div class="lab" id="ca-lab">
+      <div class="lab-head"><h4>实验台 4 · 振幅计</h4><p>紫色带是 δ 窗口内函数值的范围 $[\inf f,\sup f]$，它的高度就是 $\omega(\delta)$。右下小图记录 $\omega$ 随 $\delta$ 的变化（横轴对数刻度）。</p></div>
+      <div class="lab-body">
+        <div class="hn-plots">
+          <div class="plot-wrap">
+            <canvas id="ca-canvas" aria-label="振幅计图像"></canvas>
+            <div class="plot-tools" id="ca-tools">
+              <button type="button" data-z="in" aria-label="放大">＋</button>
+              <button type="button" data-z="out" aria-label="缩小">－</button>
+              <button type="button" data-z="focus" aria-label="对准 δ 窗口">⌖</button>
+              <button type="button" data-z="home" aria-label="复位视图">⟲</button>
+            </div>
+            <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数</span>
+            <div class="chips" id="ca-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="sinc">$\frac{\sin x}{x}$</button>
+              <button class="chip" type="button" data-v="sq">$x^2\ (a=2)$</button>
+            </div>
+          </div>
+          <label class="sl delta"><span class="sl-name">窗口 <i class="m">δ</i>（对数刻度）</span><output id="ca-delta-out">—</output><input type="range" id="ca-delta"></label>
+          <label class="check"><input type="checkbox" id="ca-follow" checked> 视窗跟随 δ</label>
+          <div class="plot-wrap short" style="border:1px solid var(--rule);border-radius:8px;overflow:hidden;min-height:170px"><canvas id="ca-wcanvas" aria-label="振幅随 δ 变化"></canvas><span class="vlabel">振幅 ω(δ)</span></div>
+          <div class="status" id="ca-status" aria-live="polite"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.3 pair game -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.3</span><h3>两点博弈：Cauchy 准则的否定</h3></div>
+    <div class="prose"><p>把准则否定：$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x',x''\in U^\circ(a;\delta)$，使 $|f(x')-f(x'')|\ge\varepsilon_0$。这里<strong>没有 $A$</strong>。你先定 $\varepsilon_0$，电脑每轮给一个更小的 $\delta$，你在青色区域里点两次，选出 $x'$ 和 $x''$。点击会吸附到你点的高度附近的图像上。</p></div>
+    <div class="lab" id="pg-lab">
+      <div class="lab-head"><h4>实验台 5 · 两点博弈</h4><p>电脑也会认真防守：如果存在让振幅小于 ε₀ 的 δ，它就会选那样的 δ。</p></div>
+      <div class="lab-body">
+        <div class="plot-wrap">
+          <canvas id="pg-canvas" aria-label="两点博弈图像"></canvas>
+          <div class="plot-tools" id="pg-tools">
+            <button type="button" data-z="in" aria-label="放大">＋</button>
+            <button type="button" data-z="out" aria-label="缩小">－</button>
+            <button type="button" data-z="focus" aria-label="对准 δ 窗口">⌖</button>
+          </div>
+          <div class="plot-hint">先点一下图像，再用滚轮缩放</div>
+        </div>
+        <div class="panel">
+          <div class="grp">
+            <span class="grp-label">函数（a = 0）</span>
+            <div class="chips" id="pg-fns">
+              <button class="chip" type="button" data-v="sin1x">$\sin\frac1x$</button>
+              <button class="chip" type="button" data-v="sgn">$\operatorname{sgn}x$</button>
+              <button class="chip" type="button" data-v="xsin">$x\sin\frac1x$</button>
+            </div>
+          </div>
+          <label class="sl cau"><span class="sl-name">你的 <i class="m">ε</i>₀</span><output id="pg-eps-out">1</output><input type="range" id="pg-eps" min="0.1" max="2.5" step="0.05" value="1"></label>
+          <div class="game" id="pg-game"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3.4 three negations -->
+  <div class="sub">
+    <div class="sub-head"><span class="num">3.4</span><h3>同一个结论，三种反证</h3></div>
+    <div class="prose"><p>证明 $\lim_{x\to0}\sin\frac1x$ 不存在。三个视角的否定形式并排放在一起，看清它们其实是同一件事：</p></div>
+    <div class="cmp-scroll">
+      <table class="cmp">
+        <thead><tr><th>视角</th><th>需要证明的否定形式</th><th>对 $\sin\frac1x$ 的具体选择</th><th>要先知道 A 吗</th></tr></thead>
+        <tbody>
+          <tr><th class="c-eps">ε–δ</th><td>$\forall A\ \exists\varepsilon_0\ \forall\delta\ \exists x\in U^\circ(0;\delta):\ |f(x)-A|\ge\varepsilon_0$</td><td>$\varepsilon_0=1$；若 $A\le0$ 取 $x=\frac{1}{\frac\pi2+2k\pi}$，若 $A>0$ 取 $x=\frac{1}{\frac{3\pi}2+2k\pi}$，$k$ 充分大</td><td class="need c-bad">要对每个 $A$ 分情况</td></tr>
+          <tr><th class="c-seq">Heine</th><td>$\exists\,x_n\to0,\ y_n\to0\ (x_n,y_n\ne0)$：$\lim f(x_n)\ne\lim f(y_n)$</td><td>$x_n=\frac{1}{2n\pi}$，$f(x_n)=0$；$y_n=\frac{1}{\frac\pi2+2n\pi}$，$f(y_n)=1$</td><td class="need c-ok">不需要</td></tr>
+          <tr><th class="c-cau">Cauchy</th><td>$\exists\varepsilon_0\ \forall\delta\ \exists x',x''\in U^\circ(0;\delta):\ |f(x')-f(x'')|\ge\varepsilon_0$</td><td>$\varepsilon_0=1$；$x'=\frac{1}{2k\pi}$，$x''=\frac{1}{\frac\pi2+2k\pi}$，$k>\frac{1}{2\pi\delta}$</td><td class="need c-ok">不需要</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="cards">
+      <div class="note"><span class="tag info">联系</span><div>Cauchy 否定里，让 $\delta=\frac1n$，每步选出的 $x'_n,x''_n$ 恰好组成两个数列：$x'_n\to0$，$x''_n\to0$，而 $|f(x'_n)-f(x''_n)|\ge\varepsilon_0$。<strong>Cauchy 准则的否定就是 Heine 两数列法的“连续版本”。</strong></div></div>
+      <div class="note"><span class="tag info">反证法</span><div>假设 $\lim_{x\to0}\sin\frac1x$ 存在。由 Cauchy 准则，对 $\varepsilon_0=1$ 有 $\delta>0$ 使 $U^\circ(0;\delta)$ 内任两点函数值之差 $&lt;1$。取 $k>\frac{1}{2\pi\delta}$，则 $x'=\frac1{2k\pi}$、$x''=\frac1{\frac\pi2+2k\pi}$ 都在 $U^\circ(0;\delta)$ 内，但 $|f(x')-f(x'')|=1$，矛盾。∎</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 4: MAP ================= -->
+<section class="chapter ch-map" id="map">
+  <div class="chap-head">
+    <span class="chap-sym">⇔</span>
+    <div><p class="eyebrow">第 4 章</p><h2>三者如何互相推出</h2></div>
+  </div>
+  <div class="prose"><p>点击箭头查看对应的证明。注意第 ④ 条：<strong>实数的完备性</strong>只在这一步出场——这正是 Cauchy 准则比另外两个说法“多出来”的内容。</p></div>
+  <div class="map-grid">
+    <div class="map-svg-wrap">
+      <svg viewBox="0 0 640 470" role="group" aria-label="三种视角的推出关系图">
+        <defs>
+          <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mhead"></path></marker>
+          <marker id="ah-on" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mhead on"></path></marker>
+        </defs>
+        <g class="marrow" data-p="1" tabindex="0" role="button" aria-label="证明 ①：ε–δ 推出 Heine">
+          <path class="hit" d="M240,76 C150,92 104,180 108,280"></path>
+          <path class="vis" d="M240,76 C150,92 104,180 108,280" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="106" y="146" width="96" height="26" rx="13"></rect><text x="154" y="164">① 直接代入</text></g>
+        </g>
+        <g class="marrow" data-p="2" tabindex="0" role="button" aria-label="证明 ②：Heine 推出 ε–δ">
+          <path class="hit" d="M178,284 C206,214 246,150 284,106"></path>
+          <path class="vis" d="M178,284 C206,214 246,150 284,106" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="190" y="208" width="128" height="26" rx="13"></rect><text x="254" y="226">② 反证 + δ = 1/n</text></g>
+        </g>
+        <g class="marrow" data-p="3" tabindex="0" role="button" aria-label="证明 ③：ε–δ 推出 Cauchy">
+          <path class="hit" d="M400,76 C490,92 536,180 532,280"></path>
+          <path class="vis" d="M400,76 C490,92 536,180 532,280" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="436" y="146" width="110" height="26" rx="13"></rect><text x="491" y="164">③ 三角不等式</text></g>
+        </g>
+        <g class="marrow" data-p="4" tabindex="0" role="button" aria-label="证明 ④：Cauchy 推出 Heine 条件，用到实数完备性">
+          <path class="hit" d="M440,318 L200,318"></path>
+          <path class="vis" d="M440,318 L200,318" marker-end="url(#ah)"></path>
+          <g class="lbl"><rect x="250" y="296" width="140" height="26" rx="13"></rect><text x="320" y="314">④ 完备性 + 交错</text></g>
+        </g>
+        <path class="mdash" d="M320,322 L320,380"></path>
+        <g class="mnode"><rect x="240" y="40" width="160" height="62" rx="10"></rect><text x="320" y="68">ε–δ 定义</text><text class="s" x="320" y="89">∀ε ∃δ ∀x</text></g>
+        <g class="mnode"><rect x="40" y="284" width="160" height="62" rx="10"></rect><text x="120" y="312">Heine 归结</text><text class="s" x="120" y="333">∀xₙ→a: f(xₙ)→A</text></g>
+        <g class="mnode"><rect x="440" y="284" width="160" height="62" rx="10"></rect><text x="520" y="312">Cauchy 准则</text><text class="s" x="520" y="333">∀ε ∃δ ∀x′,x″</text></g>
+        <g class="mnode r"><rect x="210" y="380" width="220" height="62" rx="10"></rect><text x="320" y="406" style="font-size:15px">实数完备性</text><text class="s" x="320" y="427">Cauchy 数列必收敛</text></g>
+      </svg>
+    </div>
+    <div class="map-proof" id="map-proof">
+      <div class="pf" data-p="0">
+        <h4>点击左图中的任意箭头</h4>
+        <p>四条箭头构成闭环：① 和 ② 说明 ε–δ ⇔ Heine；③ 给出 ε–δ ⇒ Cauchy；④ 从 Cauchy 回到 Heine 的条件，再经 ② 回到 ε–δ。</p>
+      </div>
+      <div class="pf" data-p="1" hidden>
+        <h4>① ε–δ ⇒ Heine</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$，$x_n\to a$，$x_n\ne a$。任给 $\varepsilon>0$，由定义取 $\delta$。</li>
+          <li>因为 $x_n\to a$，存在 $N$，当 $n>N$ 时 $|x_n-a|&lt;\delta$；又 $x_n\ne a$，所以 $0&lt;|x_n-a|&lt;\delta$。</li>
+          <li>于是 $|f(x_n)-A|&lt;\varepsilon$ 对所有 $n>N$ 成立，即 $f(x_n)\to A$。∎</li>
+        </ol>
+        <p class="where">关键：数列的 “$\exists N$” 吃掉了函数的 “$\exists\delta$”。$x_n\ne a$ 保证了 $x_n$ 落在<em>去心</em>邻域。</p>
+      </div>
+      <div class="pf" data-p="2" hidden>
+        <h4>② Heine ⇒ ε–δ（逆否）</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$ 不成立：$\exists\varepsilon_0>0\ \forall\delta>0\ \exists x$，$0&lt;|x-a|&lt;\delta$ 且 $|f(x)-A|\ge\varepsilon_0$。</li>
+          <li>依次取 $\delta=\frac1n$，得到 $x_n$：$0&lt;|x_n-a|&lt;\frac1n$，$|f(x_n)-A|\ge\varepsilon_0$。</li>
+          <li>于是 $x_n\to a$、$x_n\ne a$，但 $f(x_n)\not\to A$，与 Heine 条件矛盾。∎</li>
+        </ol>
+        <p class="where"><button class="btn sm" type="button" data-open="bridge">在实验台 3 看坏点机器 →</button></p>
+      </div>
+      <div class="pf" data-p="3" hidden>
+        <h4>③ ε–δ ⇒ Cauchy</h4>
+        <ol>
+          <li>设 $\lim_{x\to a}f(x)=A$。任给 $\varepsilon>0$，对 $\frac\varepsilon2$ 取 $\delta$：$0&lt;|x-a|&lt;\delta\Rightarrow|f(x)-A|&lt;\frac\varepsilon2$。</li>
+          <li>对任何 $x',x''\in U^\circ(a;\delta)$：$|f(x')-f(x'')|\le|f(x')-A|+|A-f(x'')|&lt;\varepsilon$。∎</li>
+        </ol>
+        <p class="where">几何上：函数值都在宽 $\varepsilon$ 的 ε/2 带里，任两点之差自然 $&lt;\varepsilon$。<button class="btn sm" type="button" data-open="cauchy:xsin">在振幅计里看 →</button></p>
+      </div>
+      <div class="pf" data-p="4" hidden>
+        <h4>④ Cauchy ⇒ 极限存在</h4>
+        <ol>
+          <li><strong>每个 $f(x_n)$ 都是 Cauchy 列。</strong>设 $x_n\to a$，$x_n\ne a$。任给 $\varepsilon$，由准则取 $\delta$；再取 $N$ 使 $n>N$ 时 $0&lt;|x_n-a|&lt;\delta$。则 $m,n>N$ 时 $|f(x_m)-f(x_n)|&lt;\varepsilon$。</li>
+          <li><strong>完备性登场。</strong>由数列的 Cauchy 收敛准则（实数完备性），$f(x_n)$ 收敛。</li>
+          <li><strong>极限与数列无关。</strong>若 $f(x_n)\to A$，$f(y_n)\to B$，作交错数列 $z_n$：$x_1,y_1,x_2,y_2,\dots$。它仍 $\to a$ 且 $\ne a$，故 $f(z_n)$ 收敛；它的两个子列 $f(x_n)$、$f(y_n)$ 极限必相等，$A=B$。</li>
+          <li>所有数列给出同一个 $A$，由 ② 得 $\lim_{x\to a}f(x)=A$。∎</li>
+        </ol>
+        <p class="where">在有理数里第 2 步会失败：$1,\,1.4,\,1.41,\,1.414,\dots$ 是 Cauchy 列，却没有有理数极限。<button class="btn sm" type="button" data-open="heine:mix">在工坊里试交错数列 →</button></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">
+    <div class="sub-head"><span class="num">4.2</span><h3>做题时选哪一个</h3></div>
+    <div class="cmp-scroll">
+      <table class="guide">
+        <thead><tr><th>你要证明的</th><th>首选工具</th><th>典型写法</th></tr></thead>
+        <tbody>
+          <tr><td>已知（猜到）$A$，证明 $\lim f=A$</td><td class="c-eps">ε–δ</td><td>草稿倒推，正式证明里“任给 $\varepsilon$，取 $\delta=\cdots$”</td></tr>
+          <tr><td>极限不存在</td><td class="c-seq">Heine</td><td>两个数列给出不同极限，或一个数列使 $f(x_n)$ 发散</td></tr>
+          <tr><td>极限存在，但猜不到 $A$</td><td class="c-cau">Cauchy</td><td>控制 $|f(x')-f(x'')|$；或先用 Heine 化为数列再用单调有界等</td></tr>
+          <tr><td>用已知函数极限求数列极限</td><td class="c-seq">Heine（⇒ 方向）</td><td>$\lim n\sin\frac1n=\lim_{x\to0}\frac{\sin x}{x}=1$</td></tr>
+          <tr><td>证明极限的性质（唯一性、局部有界、保号…）</td><td class="c-eps">ε–δ</td><td>对特定的 $\varepsilon$（如 $\frac{|A|}{2}$）取 $\delta$</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="summary">
+    <div class="k-eps"><h4>ε–δ</h4><p>$\forall\varepsilon\,\exists\delta\,\forall x\in U^\circ(a;\delta):|f(x)-A|&lt;\varepsilon$</p><p class="muted" style="margin-top:6px">否定：$\exists\varepsilon_0\,\forall\delta\,\exists x\in U^\circ(a;\delta):|f(x)-A|\ge\varepsilon_0$</p></div>
+    <div class="k-seq"><h4>Heine</h4><p>$\forall x_n\to a\ (x_n\ne a):\ f(x_n)\to A$</p><p class="muted" style="margin-top:6px">否定：$\exists x_n\to a\ (x_n\ne a):\ f(x_n)\not\to A$</p></div>
+    <div class="k-cau"><h4>Cauchy</h4><p>$\forall\varepsilon\,\exists\delta\,\forall x',x''\in U^\circ(a;\delta):|f(x')-f(x'')|&lt;\varepsilon$</p><p class="muted" style="margin-top:6px">否定：$\exists\varepsilon_0\,\forall\delta\,\exists x',x''\in U^\circ(a;\delta):|f(x')-f(x'')|\ge\varepsilon_0$</p></div>
+  </div>
+</section>
+
+<!-- ================= CHAPTER 5: PRACTICE ================= -->
+<section class="chapter ch-prac" id="practice">
+  <div class="chap-head">
+    <span class="chap-sym">Ex.</span>
+    <div><p class="eyebrow">第 5 章 · English Practice</p><h2>Practice Problems</h2></div>
+  </div>
+  <div class="prose"><p>Twelve problems covering quantifiers, constructing δ, Heine's sequential criterion and the Cauchy criterion. Some answers are checked numerically, so you can type a formula and get instant feedback. Your progress is saved in this browser.</p></div>
+  <div class="prac-top">
+    <div class="progress" aria-hidden="true"><i id="ex-bar"></i></div>
+    <span class="mono" id="ex-count" style="font-size:var(--t-sm)">0 / 12 solved</span>
+    <button class="btn sm" type="button" id="ex-reset">Reset progress</button>
+  </div>
+  <div class="ex-list" id="ex-list"></div>
+</section>
+
+<footer class="foot">
+  <p>函数极限实验室 · 所有“数值检验”只作为直观证据；严格结论以文中的证明为准。图像使用逐像素区间包络绘制，因此 $\sin\frac1x$ 在 $0$ 附近显示为一整条带——这正是它的真实样子。</p>
+</footer>
+
+</div>
+</main>
+
+<script>
+'use strict';
+/* =========================================================
+   core: 工具函数、主题、表达式解析、函数库、画布绘图引擎
+   ========================================================= */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => Array.from(r.querySelectorAll(s));
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const PI = Math.PI, TAU = 2 * Math.PI;
+const REDUCED = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const M = s => `<i class="m">${s}</i>`;
+
+const Lab = {
+  _ev: {},
+  on(e, f) { (this._ev[e] || (this._ev[e] = [])).push(f); },
+  emit(e, ...a) { (this._ev[e] || []).forEach(f => f(...a)); },
+  open: {},
+};
+
+/* ---------- MathJax ---------- */
+const MJQ = [];
+function typeset(el) {
+  const MJ = window.MathJax;
+  if (Lab.mjReady && MJ && MJ.typesetPromise) {
+    try { MJ.typesetClear([el]); } catch (_) { /* first typeset */ }
+    return MJ.typesetPromise([el]).catch(() => {});
+  }
+  MJQ.push(el);
+  return Promise.resolve();
+}
+Lab.on('mathjax', () => { const q = MJQ.splice(0); if (q.length) window.MathJax.typesetPromise(q).catch(() => {}); });
+
+/* ---------- 数字格式 ---------- */
+const SUPS = { '0': '⁰', '1': '¹', '2': '²', '3': '³', '4': '⁴', '5': '⁵', '6': '⁶', '7': '⁷', '8': '⁸', '9': '⁹', '-': '⁻' };
+const sup = n => String(n).split('').map(c => SUPS[c] || c).join('');
+function fmt(v, p = 4) {
+  if (v === Infinity) return '∞';
+  if (v === -Infinity) return '−∞';
+  if (typeof v !== 'number' || isNaN(v)) return '—';
+  if (v === 0) return '0';
+  const a = Math.abs(v);
+  if (a >= 1e5 || a < 1e-3) {
+    let e = Math.floor(Math.log10(a));
+    let m = +(v / Math.pow(10, e)).toPrecision(Math.max(1, p - 1));
+    if (Math.abs(m) >= 10) { m /= 10; e += 1; }
+    const ms = m === 1 ? '' : m === -1 ? '−' : String(m).replace('-', '−') + '×';
+    return ms + '10' + sup(e);
+  }
+  return String(+v.toPrecision(p)).replace('-', '−');
+}
+
+/* ---------- 主题颜色（画布从 CSS 变量取色） ---------- */
+const Theme = {
+  c: {},
+  get(n) {
+    let v = this.c[n];
+    if (v === undefined) { v = getComputedStyle(document.documentElement).getPropertyValue('--' + n).trim() || '#888'; this.c[n] = v; }
+    return v;
+  },
+  reset() { this.c = {}; Plot.all.forEach(p => p.request()); Lab.emit('theme'); },
+};
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => Theme.reset());
+new MutationObserver(() => Theme.reset()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+const FONT_MONO = '11px "JetBrains Mono", ui-monospace, monospace';
+const FONT_MATH = 'italic 15px "STIX Two Text", "Times New Roman", serif';
+const FONT_UI = '12px "Noto Sans SC", "PingFang SC", system-ui, sans-serif';
+
+/* ---------- 表达式解析（不使用 eval） ---------- */
+const Expr = (() => {
+  const FUNCS = {
+    sin: Math.sin, cos: Math.cos, tan: Math.tan, asin: Math.asin, arcsin: Math.asin, acos: Math.acos, arccos: Math.acos,
+    atan: Math.atan, arctan: Math.atan, sqrt: Math.sqrt, ln: Math.log, log: Math.log, exp: Math.exp, abs: Math.abs,
+    floor: Math.floor, ceil: Math.ceil, sgn: Math.sign, sign: Math.sign, min: Math.min, max: Math.max,
+  };
+  const CONSTS = { pi: Math.PI, e: Math.E };
+  function tokenize(src, vars) {
+    const s = src.replace(/π/g, 'pi').replace(/[εϵ]/g, 'eps').replace(/epsilon/g, 'eps').replace(/[×·∙]/g, '*')
+      .replace(/[−–—]/g, '-').replace(/√/g, 'sqrt').replace(/（/g, '(').replace(/）/g, ')').replace(/，/g, ',').replace(/\*\*/g, '^');
+    const names = [...Object.keys(FUNCS), ...Object.keys(CONSTS), ...vars].sort((a, b) => b.length - a.length);
+    const out = [];
+    let i = 0;
+    while (i < s.length) {
+      const c = s[i];
+      if (/\s/.test(c)) { i++; continue; }
+      const num = /^(\d+\.?\d*|\.\d+)(e[+-]?\d+)?/i.exec(s.slice(i));
+      if (num) { out.push({ t: 'num', v: parseFloat(num[0]) }); i += num[0].length; continue; }
+      if (/[a-zA-Z_]/.test(c)) {
+        const nm = names.find(n => s.startsWith(n, i));
+        if (!nm) { const w = /^[a-zA-Z_]+/.exec(s.slice(i))[0]; throw new Error(`不认识 “${w}”`); }
+        out.push({ t: 'name', v: nm }); i += nm.length; continue;
+      }
+      if ('+-*/^(),'.includes(c)) { out.push({ t: 'op', v: c }); i++; continue; }
+      throw new Error(`不认识的符号 “${c}”`);
+    }
+    return out;
+  }
+  function compile(src, vars) {
+    if (!src || !src.trim()) throw new Error('表达式为空');
+    const toks = tokenize(src, vars);
+    let p = 0;
+    const peek = () => toks[p];
+    const expect = v => { const t = toks[p++]; if (!t || t.v !== v) throw new Error(`缺少 “${v}”`); };
+    function primary() {
+      const t = toks[p++];
+      if (!t) throw new Error('表达式不完整');
+      if (t.t === 'num') { const v = t.v; return () => v; }
+      if (t.t === 'op' && t.v === '(') { const e = expr(0); expect(')'); return e; }
+      if (t.t === 'op' && t.v === '-') { const e = expr(3); return env => -e(env); }
+      if (t.t === 'op' && t.v === '+') return expr(3);
+      if (t.t === 'name') {
+        if (t.v in FUNCS && !vars.includes(t.v)) {
+          if (!peek() || peek().v !== '(') throw new Error(`${t.v} 后面需要括号，例如 ${t.v}(n)`);
+          p++;
+          const args = [expr(0)];
+          while (peek() && peek().v === ',') { p++; args.push(expr(0)); }
+          expect(')');
+          const fn = FUNCS[t.v];
+          if (args.length === 1) { const a0 = args[0]; return env => fn(a0(env)); }
+          return env => fn(...args.map(a => a(env)));
+        }
+        if (vars.includes(t.v)) { const k = t.v; return env => env[k]; }
+        if (t.v in CONSTS) { const v = CONSTS[t.v]; return () => v; }
+      }
+      throw new Error(`意外的 “${t.v}”`);
+    }
+    function expr(minPrec) {
+      let lhs = primary();
+      for (;;) {
+        const t = peek();
+        if (!t) break;
+        let op, prec, right = false, implicit = false;
+        if (t.t === 'op' && (t.v === '+' || t.v === '-')) { op = t.v; prec = 1; }
+        else if (t.t === 'op' && (t.v === '*' || t.v === '/')) { op = t.v; prec = 2; }
+        else if (t.t === 'op' && t.v === '^') { op = '^'; prec = 4; right = true; }
+        else if (t.t === 'num' || t.t === 'name' || (t.t === 'op' && t.v === '(')) { op = '*'; prec = 2; implicit = true; }
+        else break;
+        if (prec < minPrec) break;
+        if (!implicit) p++;
+        const rhs = expr(right ? prec : prec + 1);
+        const l = lhs;
+        lhs = op === '+' ? env => l(env) + rhs(env)
+          : op === '-' ? env => l(env) - rhs(env)
+          : op === '*' ? env => l(env) * rhs(env)
+          : op === '/' ? env => l(env) / rhs(env)
+          : env => Math.pow(l(env), rhs(env));
+      }
+      return lhs;
+    }
+    const f = expr(0);
+    if (p < toks.length) throw new Error(`多余的 “${toks[p].v}”`);
+    return f;
+  }
+  return { compile };
+})();
+
+/* ---------- 函数库 ---------- */
+function sinRange(t0, t1) {
+  if (t1 - t0 >= TAU) return [-1, 1];
+  const s0 = Math.sin(t0), s1 = Math.sin(t1);
+  let lo = Math.min(s0, s1), hi = Math.max(s0, s1);
+  if (PI / 2 + Math.ceil((t0 - PI / 2) / TAU) * TAU <= t1) hi = 1;
+  if (-PI / 2 + Math.ceil((t0 + PI / 2) / TAU) * TAU <= t1) lo = -1;
+  return [lo, hi];
+}
+function sampleRange(f, x0, x1, m = 6) {
+  let lo = Infinity, hi = -Infinity;
+  for (let i = 0; i <= m; i++) {
+    const y = f(x0 + (x1 - x0) * i / m);
+    if (isFinite(y)) { if (y < lo) lo = y; if (y > hi) hi = y; }
+  }
+  return lo <= hi ? [lo, hi] : null;
+}
+// 让 sin(c/x) = ±1 的点：取满足 0<x<δ 的前几个
+function peakPoints(c, d, phase) {
+  const out = [];
+  const k0 = Math.max(0, Math.floor((c / d - phase) / TAU) + 1);
+  for (let k = k0; k < k0 + 3; k++) { const x = c / (phase + k * TAU); out.push(x, -x); }
+  return out;
+}
+const FN = {
+  sq: { tex: 'x^2', f: x => x * x, a: 2, L: 4 },
+  hole: { tex: '\\frac{x^2-1}{x-1}', f: x => x === 1 ? NaN : (x * x - 1) / (x - 1), a: 1, L: 2, marks: [{ x: 1, y: 2, open: true }] },
+  sinc: { tex: '\\frac{\\sin x}{x}', f: x => x === 0 ? NaN : Math.sin(x) / x, a: 0, L: 1, marks: [{ x: 0, y: 1, open: true }] },
+  xsin: {
+    tex: 'x\\sin\\frac1x', f: x => x === 0 ? NaN : x * Math.sin(1 / x), a: 0, L: 0,
+    range(x0, x1) {
+      const M_ = Math.max(Math.abs(x0), Math.abs(x1));
+      if (x0 <= 0 && x1 >= 0) return [-M_, M_];
+      if (Math.abs(1 / x0 - 1 / x1) >= TAU) return [-M_, M_];
+      return sampleRange(this.f, x0, x1, 16);
+    },
+    special(a, d) { const out = []; const k0 = Math.max(0, Math.floor((1 / d - PI / 2) / PI) + 1); for (let k = k0; k < k0 + 4; k++) { const x = 1 / (PI / 2 + k * PI); out.push(x, -x); } return out; },
+    marks: [{ x: 0, y: 0, open: true }],
+  },
+  sgn: { tex: '\\operatorname{sgn}x', f: x => Math.sign(x), a: 0, L: null, breaks: [0], marks: [{ x: 0, y: 1, open: true }, { x: 0, y: -1, open: true }, { x: 0, y: 0 }] },
+  sin1x: {
+    tex: '\\sin\\frac1x', f: x => x === 0 ? NaN : Math.sin(1 / x), a: 0, L: null,
+    range(x0, x1) { if (x0 <= 0 && x1 >= 0) return [-1, 1]; return sinRange(1 / x1, 1 / x0); },
+    special(a, d) { return [...peakPoints(1, d, PI / 2), ...peakPoints(1, d, 3 * PI / 2)]; },
+  },
+  sinpix: {
+    tex: '\\sin\\frac{\\pi}{x}', f: x => x === 0 ? NaN : Math.sin(PI / x), a: 0, L: null,
+    range(x0, x1) { if (x0 <= 0 && x1 >= 0) return [-1, 1]; return sinRange(PI / x1, PI / x0); },
+    special(a, d) { return [...peakPoints(PI, d, PI / 2), ...peakPoints(PI, d, 3 * PI / 2)]; },
+  },
+};
+for (const k in FN) FN[k].key = k;
+
+/* 去心邻域 0<|x-a|<d 内取样（线性 + 对数，兼顾远端与贴近 a 的点） */
+function nbhd(a, d, cb) {
+  const N = 400;
+  for (let i = 1; i <= N; i++) {
+    const t = i / N;
+    const lin = d * t * (1 - 1e-9);
+    const lg = d * Math.pow(10, -11 * (1 - t)) * (1 - 1e-9);
+    cb(a + lin); cb(a - lin); cb(a + lg); cb(a - lg);
+  }
+}
+function inNbhd(x, a, d) { const dx = Math.abs(x - a); return dx > 0 && dx < d; }
+/* sup{|f(x)-A| : 0<|x-a|<d}，同时返回近似取到它的 x（反例） */
+function supDev(F, a, d, A) {
+  let best = -1, bx = NaN;
+  const test = x => {
+    if (!inNbhd(x, a, d)) return;
+    const y = F.f(x);
+    if (isNaN(y)) return;
+    const v = Math.abs(y - A);
+    if (v > best) { best = v; bx = x; }
+  };
+  nbhd(a, d, test);
+  if (F.special) F.special(a, d).forEach(test);
+  return { sup: best, x: bx };
+}
+function infSup(F, a, d) {
+  let lo = Infinity, hi = -Infinity, xlo = NaN, xhi = NaN;
+  const test = x => {
+    if (!inNbhd(x, a, d)) return;
+    const y = F.f(x);
+    if (!isFinite(y)) return;
+    if (y < lo) { lo = y; xlo = x; }
+    if (y > hi) { hi = y; xhi = x; }
+  };
+  nbhd(a, d, test);
+  if (F.special) F.special(a, d).forEach(test);
+  return { lo, hi, xlo, xhi };
+}
+/* 对给定 ε，最大的可行 δ（数值二分）。Infinity: 任何 δ 都行；0: 不存在可行 δ */
+function deltaMax(F, a, A, eps, cap = 10) {
+  const ok = d => supDev(F, a, d, A).sup < eps;
+  if (ok(cap)) return Infinity;
+  let lo = -10, hi = Math.log10(cap);
+  if (!ok(Math.pow(10, lo))) return 0;
+  for (let i = 0; i < 34; i++) { const m = (lo + hi) / 2; if (ok(Math.pow(10, m))) lo = m; else hi = m; }
+  return Math.pow(10, lo);
+}
+/* 振幅 ω(δ) = sup f − inf f 在去心邻域上 */
+function omega(F, a, d) { const r = infSup(F, a, d); return r.hi - r.lo; }
+function omegaStar(F, a, eps) {
+  const ok = d => omega(F, a, d) < eps;
+  if (ok(10)) return Infinity;
+  let lo = -10, hi = 1;
+  if (!ok(Math.pow(10, lo))) return 0;
+  for (let i = 0; i < 34; i++) { const m = (lo + hi) / 2; if (ok(Math.pow(10, m))) lo = m; else hi = m; }
+  return Math.pow(10, lo);
+}
+/* 点击“吸附”：在像素邻域内找函数图像上离点击高度最近的点（限制在去心邻域内） */
+function snapToGraph(plot, F, px, py, a, d, r = 6) {
+  let best = null, bd = Infinity;
+  const x0 = plot.ix(px - r), x1 = plot.ix(px + r);
+  for (let i = 0; i <= 300; i++) {
+    const x = x0 + (x1 - x0) * i / 300;
+    if (!inNbhd(x, a, d)) continue;
+    const y = F.f(x);
+    if (!isFinite(y)) continue;
+    const dist = Math.abs(plot.Y(y) - py);
+    if (dist < bd) { bd = dist; best = x; }
+  }
+  return best;
+}
+
+/* =========================================================
+   Plot：可缩放、可平移、可拖拽手柄的画布坐标系
+   ========================================================= */
+class Plot {
+  constructor(canvas, opt = {}) {
+    this.cv = canvas;
+    this.wrap = canvas.parentElement;
+    this.ctx = canvas.getContext('2d');
+    this.o = Object.assign({ interactive: true, xlog: false, ylog: false, minW: 2e-12, maxW: 5e3, lockY: false, xName: '', yName: '' }, opt);
+    this.view = Object.assign({ x0: -1, x1: 1, y0: -1, y1: 1 }, opt.view || {});
+    this.home = Object.assign({}, this.view);
+    this.layers = [];
+    this.handles = [];
+    this.onClick = null;
+    this.onView = null;
+    this.w = 300; this.h = 200; this.dpr = 1;
+    this.active = false;
+    Plot.all.add(this);
+    if ('ResizeObserver' in window) new ResizeObserver(() => this.resize()).observe(canvas);
+    this.resize();
+    if (this.o.interactive) this.bind();
+  }
+  resize() {
+    const r = this.cv.getBoundingClientRect();
+    if (r.width < 2 || r.height < 2) return;
+    this.dpr = Math.min(window.devicePixelRatio || 1, 2.5);
+    this.w = r.width; this.h = r.height;
+    this.cv.width = Math.round(r.width * this.dpr);
+    this.cv.height = Math.round(r.height * this.dpr);
+    this.draw();
+  }
+  tx(x) { return this.o.xlog ? Math.log10(x) : x; }
+  ty(y) { return this.o.ylog ? Math.log10(y) : y; }
+  X(x) { const a = this.tx(this.view.x0), b = this.tx(this.view.x1); return (this.tx(x) - a) / (b - a) * this.w; }
+  Y(y) { const a = this.ty(this.view.y0), b = this.ty(this.view.y1); return this.h - (this.ty(y) - a) / (b - a) * this.h; }
+  ix(px) { const a = this.tx(this.view.x0), b = this.tx(this.view.x1); const t = a + px / this.w * (b - a); return this.o.xlog ? Math.pow(10, t) : t; }
+  iy(py) { const a = this.ty(this.view.y0), b = this.ty(this.view.y1); const t = a + (this.h - py) / this.h * (b - a); return this.o.ylog ? Math.pow(10, t) : t; }
+  request() { if (this.raf) return; this.raf = requestAnimationFrame(() => { this.raf = 0; this.draw(); }); }
+  setView(v) { cancelAnimationFrame(this.anim); this.view = Object.assign({}, v); this.request(); }
+  animateTo(t, ms = 700) {
+    cancelAnimationFrame(this.anim);
+    if (REDUCED) ms = 0;
+    const s = Object.assign({}, this.view);
+    const sc = [(s.x0 + s.x1) / 2, (s.y0 + s.y1) / 2], sw = [s.x1 - s.x0, s.y1 - s.y0];
+    const tc = [(t.x0 + t.x1) / 2, (t.y0 + t.y1) / 2], tw = [t.x1 - t.x0, t.y1 - t.y0];
+    const t0 = performance.now();
+    return new Promise(res => {
+      const step = now => {
+        const u = ms ? Math.min(1, (now - t0) / ms) : 1;
+        const e = u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+        const wx = Math.exp(lerp(Math.log(sw[0]), Math.log(tw[0]), e));
+        const wy = Math.exp(lerp(Math.log(sw[1]), Math.log(tw[1]), e));
+        // 中心按“缩放比例”插值，使放大过程中目标点保持稳定
+        const k = Math.abs(sw[0] - tw[0]) > 1e-300 ? (sw[0] - wx) / (sw[0] - tw[0]) : e;
+        const kk = isFinite(k) ? clamp(k, 0, 1) : e;
+        const cx = lerp(sc[0], tc[0], kk), cy = lerp(sc[1], tc[1], e);
+        this.view = { x0: cx - wx / 2, x1: cx + wx / 2, y0: cy - wy / 2, y1: cy + wy / 2 };
+        this.draw();
+        if (u < 1) this.anim = requestAnimationFrame(step); else { this.view = Object.assign({}, t); this.draw(); res(); }
+      };
+      this.anim = requestAnimationFrame(step);
+    });
+  }
+  /* ----- interaction ----- */
+  setActive(on) {
+    if (this.active === on) return;
+    this.active = on;
+    this.wrap.classList.toggle('is-active', on);
+    this.cv.style.touchAction = on ? 'none' : 'pan-y';
+  }
+  flashHint() {
+    const h = $('.plot-hint', this.wrap);
+    if (!h) return;
+    h.classList.add('show');
+    clearTimeout(this._ht);
+    this._ht = setTimeout(() => h.classList.remove('show'), 1300);
+  }
+  hit(px, py) { for (const h of this.handles) if ((!h.enabled || h.enabled()) && h.hit(px, py)) return h; return null; }
+  bind() {
+    const cv = this.cv;
+    const ptrs = new Map();
+    let g = null;
+    const pos = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+    cv.addEventListener('pointerdown', e => {
+      const p = pos(e);
+      ptrs.set(e.pointerId, p);
+      try { cv.setPointerCapture(e.pointerId); } catch (_) { /* ignore */ }
+      this.setActive(true);
+      cancelAnimationFrame(this.anim);
+      if (ptrs.size === 1) {
+        const h = this.hit(p.x, p.y);
+        g = { kind: h ? 'handle' : 'pan', h, sx: p.x, sy: p.y, v: Object.assign({}, this.view), moved: false };
+      } else if (ptrs.size === 2) {
+        const [a, b] = [...ptrs.values()];
+        g = { kind: 'pinch', d0: Math.max(10, Math.hypot(a.x - b.x, a.y - b.y)), v: Object.assign({}, this.view), cx: (a.x + b.x) / 2, cy: (a.y + b.y) / 2, moved: true };
+      }
+    });
+    cv.addEventListener('pointermove', e => {
+      const p = pos(e);
+      if (!ptrs.has(e.pointerId)) {
+        const h = this.hit(p.x, p.y);
+        cv.style.cursor = h ? (h.cursor || 'grab') : (this.clickCursor ? this.clickCursor() : 'grab');
+        return;
+      }
+      ptrs.set(e.pointerId, p);
+      if (!g) return;
+      if (g.kind === 'pinch') {
+        if (ptrs.size < 2) return;
+        const [a, b] = [...ptrs.values()];
+        const k = g.d0 / Math.max(10, Math.hypot(a.x - b.x, a.y - b.y));
+        this.view = Object.assign({}, g.v);
+        this.zoomAt(g.cx, g.cy, k, this.o.lockY ? 1 : k, false);
+        this.panBy((a.x + b.x) / 2 - g.cx, (a.y + b.y) / 2 - g.cy);
+        this.changed();
+        return;
+      }
+      const dx = p.x - g.sx, dy = p.y - g.sy;
+      if (Math.hypot(dx, dy) > 4) g.moved = true;
+      if (g.kind === 'handle') { g.h.drag(this.ix(p.x), this.iy(p.y)); this.request(); }
+      else if (g.moved) { this.view = Object.assign({}, g.v); this.panBy(dx, this.o.lockY ? 0 : dy); this.changed(); }
+    });
+    const end = e => {
+      const p = pos(e);
+      if (g && g.kind === 'pan' && !g.moved && this.onClick && ptrs.size === 1) this.onClick(this.ix(p.x), this.iy(p.y), p.x, p.y);
+      if (g && g.kind === 'handle' && g.h.end) g.h.end();
+      ptrs.delete(e.pointerId);
+      if (ptrs.size === 0) g = null;
+      else if (ptrs.size === 1) { const q = [...ptrs.values()][0]; g = { kind: 'pan', sx: q.x, sy: q.y, v: Object.assign({}, this.view), moved: true }; }
+    };
+    cv.addEventListener('pointerup', end);
+    cv.addEventListener('pointercancel', e => { ptrs.delete(e.pointerId); if (!ptrs.size) g = null; });
+    cv.addEventListener('wheel', e => {
+      if (!this.active && !e.ctrlKey && !e.metaKey) { this.flashHint(); return; }
+      e.preventDefault();
+      const p = pos(e);
+      const dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1);
+      const k = Math.exp(clamp(dy, -250, 250) * 0.002);
+      this.zoomAt(p.x, p.y, e.altKey ? 1 : k, (e.shiftKey || this.o.lockY) ? 1 : k);
+    }, { passive: false });
+    document.addEventListener('pointerdown', e => { if (!this.wrap.contains(e.target)) this.setActive(false); });
+  }
+  zoomAt(px, py, kx, ky, fire = true) {
+    const v = this.view, wx = this.ix(px), wy = this.iy(py);
+    let n = { x0: wx - (wx - v.x0) * kx, x1: wx + (v.x1 - wx) * kx, y0: wy - (wy - v.y0) * ky, y1: wy + (v.y1 - wy) * ky };
+    const W = n.x1 - n.x0, H = n.y1 - n.y0;
+    if (W < this.o.minW * Math.max(1, Math.abs(wx)) || W > this.o.maxW) { n.x0 = v.x0; n.x1 = v.x1; }
+    if (H < this.o.minW * Math.max(1, Math.abs(wy)) || H > this.o.maxW) { n.y0 = v.y0; n.y1 = v.y1; }
+    this.view = n;
+    if (fire) this.changed();
+  }
+  zoomCenter(k) { this.zoomAt(this.w / 2, this.h / 2, k, this.o.lockY ? 1 : k); }
+  panBy(dx, dy) {
+    const v = this.view, sx = (v.x1 - v.x0) / this.w, sy = (v.y1 - v.y0) / this.h;
+    this.view = { x0: v.x0 - dx * sx, x1: v.x1 - dx * sx, y0: v.y0 + dy * sy, y1: v.y1 + dy * sy };
+  }
+  changed() { this.request(); if (this.onView) this.onView(); }
+  tools(el, focus) {
+    if (!el) return;
+    el.addEventListener('click', e => {
+      const b = e.target.closest('button');
+      if (!b) return;
+      const act = b.dataset.z;
+      if (act === 'in') this.zoomCenter(0.5);
+      else if (act === 'out') this.zoomCenter(2);
+      else if (act === 'home') this.animateTo(this.home);
+      else if (act === 'focus' && focus) { const v = focus(); if (v) this.animateTo(v); }
+    });
+  }
+  /* ----- drawing ----- */
+  draw() {
+    const c = this.ctx;
+    c.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
+    c.clearRect(0, 0, this.w, this.h);
+    c.fillStyle = Theme.get('plot-bg');
+    c.fillRect(0, 0, this.w, this.h);
+    this.gx = this.ticks(this.view.x0, this.view.x1, this.w, this.o.xlog);
+    this.gy = this.ticks(this.view.y0, this.view.y1, this.h, this.o.ylog);
+    this.grid();
+    for (const L of this.layers) { c.save(); try { L(c, this); } catch (err) { console.error(err); } c.restore(); }
+    this.tickLabels();
+  }
+  ticks(lo, hi, px, log) {
+    const out = [];
+    if (log) {
+      const a = Math.log10(lo), b = Math.log10(hi);
+      for (let k = Math.ceil(a - 1e-9); k <= Math.floor(b + 1e-9); k++) {
+        out.push({ v: Math.pow(10, k), major: true, label: k === 0 ? '1' : '10' + sup(k) });
+        for (let m = 2; m < 10; m++) { const v = m * Math.pow(10, k); if (v < hi) out.push({ v, major: false }); }
+      }
+      return out;
+    }
+    const target = Math.max(2, px / 95);
+    const raw = (hi - lo) / target;
+    if (!(raw > 0)) return out;
+    const p = Math.pow(10, Math.floor(Math.log10(raw)));
+    const m = raw / p;
+    const step = (m < 1.5 ? 1 : m < 3.5 ? 2 : m < 7.5 ? 5 : 10) * p;
+    const s = Math.ceil(lo / step), e = Math.floor(hi / step);
+    if (e - s > 300) return out;
+    const big = Math.max(Math.abs(lo), Math.abs(hi));
+    const sci = (step < 1e-4 && big < 1e-2) || step >= 1e5;
+    const dec = clamp(-Math.floor(Math.log10(step) + 1e-9), 0, 14);
+    for (let k = s; k <= e; k++) {
+      const v = k * step;
+      let label;
+      if (k === 0) label = '0';
+      else if (sci) label = fmt(v, 3);
+      else label = v.toFixed(dec).replace('-', '−');
+      out.push({ v, major: true, label });
+    }
+    return out;
+  }
+  grid() {
+    const c = this.ctx;
+    c.lineWidth = 1;
+    for (const t of this.gx) { const x = Math.round(this.X(t.v)) + .5; c.strokeStyle = Theme.get(t.major ? 'plot-grid-2' : 'plot-grid'); c.beginPath(); c.moveTo(x, 0); c.lineTo(x, this.h); c.stroke(); }
+    for (const t of this.gy) { const y = Math.round(this.Y(t.v)) + .5; c.strokeStyle = Theme.get(t.major ? 'plot-grid-2' : 'plot-grid'); c.beginPath(); c.moveTo(0, y); c.lineTo(this.w, y); c.stroke(); }
+    c.strokeStyle = Theme.get('plot-axis');
+    c.lineWidth = 1.2;
+    if (!this.o.xlog && this.view.x0 < 0 && this.view.x1 > 0) { const x = Math.round(this.X(0)) + .5; c.beginPath(); c.moveTo(x, 0); c.lineTo(x, this.h); c.stroke(); }
+    if (!this.o.ylog && this.view.y0 < 0 && this.view.y1 > 0) { const y = Math.round(this.Y(0)) + .5; c.beginPath(); c.moveTo(0, y); c.lineTo(this.w, y); c.stroke(); }
+  }
+  tickLabels() {
+    const c = this.ctx;
+    c.font = FONT_MONO;
+    let lastR = -1e9;
+    for (const t of this.gx) {
+      if (!t.label) continue;
+      const x = this.X(t.v);
+      const w = c.measureText(t.label).width;
+      if (x - w / 2 < 4 || x + w / 2 > this.w - 4 || x - w / 2 < lastR + 8) continue;
+      lastR = x + w / 2;
+      this.text(t.label, x, this.h - 9, { align: 'center' });
+    }
+    for (const t of this.gy) {
+      if (!t.label) continue;
+      const y = this.Y(t.v);
+      if (y < 12 || y > this.h - 22) continue;
+      this.text(t.label, 6, y, {});
+    }
+    if (this.o.xName) this.text(this.o.xName, this.w - 8, this.h - 24, { align: 'right', font: FONT_MATH });
+    if (this.o.yName) this.text(this.o.yName, 52, 14, { font: FONT_MATH });
+  }
+  text(s, px, py, o = {}) {
+    const c = this.ctx;
+    c.font = o.font || FONT_MONO;
+    c.textAlign = o.align || 'left';
+    c.textBaseline = o.base || 'middle';
+    if (o.box !== false && c.textBaseline === 'middle') {
+      const w = c.measureText(s).width, x0 = c.textAlign === 'center' ? px - w / 2 : c.textAlign === 'right' ? px - w : px;
+      c.globalAlpha = .86; c.fillStyle = Theme.get('plot-bg'); c.fillRect(x0 - 3, py - 8, w + 6, 16); c.globalAlpha = 1;
+    } else if (o.halo !== false) { c.lineWidth = 4; c.lineJoin = 'round'; c.strokeStyle = Theme.get('plot-bg'); c.strokeText(s, px, py); }
+    c.fillStyle = o.color || Theme.get('plot-label');
+    c.fillText(s, px, py);
+  }
+  vband(x0, x1, fill) { const a = clamp(this.X(x0), -10, this.w + 10), b = clamp(this.X(x1), -10, this.w + 10); this.ctx.fillStyle = fill; this.ctx.fillRect(Math.min(a, b), 0, Math.abs(b - a), this.h); }
+  hband(y0, y1, fill, xa = -Infinity, xb = Infinity) {
+    const a = clamp(this.Y(y0), -10, this.h + 10), b = clamp(this.Y(y1), -10, this.h + 10);
+    const l = xa === -Infinity ? 0 : clamp(this.X(xa), -10, this.w + 10), r = xb === Infinity ? this.w : clamp(this.X(xb), -10, this.w + 10);
+    this.ctx.fillStyle = fill; this.ctx.fillRect(l, Math.min(a, b), r - l, Math.abs(b - a));
+  }
+  vline(x, color, dash = [], w = 1.2) { const c = this.ctx, X = this.X(x); if (X < -5 || X > this.w + 5) return; c.save(); c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash); c.beginPath(); c.moveTo(X, 0); c.lineTo(X, this.h); c.stroke(); c.restore(); }
+  hline(y, color, dash = [], w = 1.2, xa = -Infinity, xb = Infinity) {
+    const c = this.ctx, Y = this.Y(y); if (Y < -5 || Y > this.h + 5) return;
+    const l = xa === -Infinity ? 0 : clamp(this.X(xa), -10, this.w + 10), r = xb === Infinity ? this.w : clamp(this.X(xb), -10, this.w + 10);
+    c.save(); c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash); c.beginPath(); c.moveTo(l, Y); c.lineTo(r, Y); c.stroke(); c.restore();
+  }
+  seg(x0, y0, x1, y1, color, dash = [], w = 1.2) { const c = this.ctx; c.save(); c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash); c.beginPath(); c.moveTo(this.X(x0), this.Y(y0)); c.lineTo(this.X(x1), this.Y(y1)); c.stroke(); c.restore(); }
+  dot(x, y, r, fill, stroke) {
+    const c = this.ctx, X = this.X(x), Y = this.Y(y);
+    if (X < -20 || X > this.w + 20 || Y < -20 || Y > this.h + 20) return;
+    c.beginPath(); c.arc(X, Y, r, 0, TAU);
+    if (fill) { c.fillStyle = fill; c.fill(); }
+    if (stroke) { c.lineWidth = 1.6; c.strokeStyle = stroke; c.stroke(); }
+  }
+  marks(F, color) {
+    for (const m of F.marks || []) this.dot(m.x, m.y, 4.2, m.open ? Theme.get('plot-bg') : (color || Theme.get('curve')), color || Theme.get('curve'));
+  }
+  /* 逐像素列取函数值区间，画出“包络”：振荡无穷的地方自然变成一整条带 */
+  fn(F, o = {}) {
+    const c = this.ctx, v = this.view;
+    const xa = o.xmin !== undefined ? Math.max(o.xmin, v.x0) : v.x0;
+    const xb = o.xmax !== undefined ? Math.min(o.xmax, v.x1) : v.x1;
+    if (!(xb > xa)) return;
+    const p0 = Math.max(0, Math.floor(this.X(xa))), p1 = Math.min(Math.ceil(this.w), Math.ceil(this.X(xb)));
+    c.lineWidth = o.width || 2;
+    c.lineCap = 'round';
+    const base = o.color || Theme.get('curve');
+    const H = this.h;
+    let cur = null;
+    c.beginPath();
+    const flush = () => { if (cur) { c.strokeStyle = cur; c.stroke(); } c.beginPath(); };
+    for (let px = p0; px < p1; px++) {
+      const u0 = Math.max(this.ix(px), xa), u1 = Math.min(this.ix(px + 1), xb);
+      if (!(u1 > u0)) continue;
+      let parts = [[u0, u1]];
+      if (F.breaks) for (const b of F.breaks) if (b >= u0 && b <= u1) {
+        const e = (u1 - u0) * 1e-3; parts = [];
+        if (b - e > u0) parts.push([u0, b - e]);
+        if (b + e < u1) parts.push([b + e, u1]);
+      }
+      for (const [s0, s1] of parts) {
+        const r = F.range ? F.range(s0, s1) : sampleRange(F.f, s0, s1, 6);
+        if (!r) continue;
+        const col = o.colorBy ? o.colorBy(r[0], r[1]) : base;
+        if (col !== cur) { flush(); cur = col; }
+        const ya = clamp(this.Y(r[0]), -40, H + 40), yb = clamp(this.Y(r[1]), -40, H + 40);
+        c.moveTo(px + .5, ya); c.lineTo(px + .5, Math.abs(yb - ya) < .01 ? ya - .01 : yb);
+      }
+    }
+    flush();
+  }
+  polyline(pts, color, w = 1.5, dash = []) {
+    const c = this.ctx; c.save(); c.strokeStyle = color; c.lineWidth = w; c.setLineDash(dash); c.lineJoin = 'round'; c.beginPath();
+    let started = false;
+    for (const [x, y] of pts) { if (!isFinite(y) || !isFinite(x)) { started = false; continue; } const X = this.X(x), Y = clamp(this.Y(y), -50, this.h + 50); if (!started) { c.moveTo(X, Y); started = true; } else c.lineTo(X, Y); }
+    c.stroke(); c.restore();
+  }
+}
+Plot.all = new Set();
+
+/* 统一的对数滑块 */
+function logSlider(input, out, lo, hi, onInput, digits = 3) {
+  input.min = lo; input.max = hi; input.step = 0.001;
+  const api = {
+    get() { return Math.pow(10, +input.value); },
+    set(v) { input.value = clamp(Math.log10(v), lo, hi); if (out) out.textContent = fmt(v, digits); },
+    show(v) { if (out) out.textContent = fmt(v, digits); },
+  };
+  input.addEventListener('input', () => { const v = api.get(); if (out) out.textContent = fmt(v, digits); onInput(v); });
+  return api;
+}
+function pressGroup(container, sel, onPick) {
+  const btns = $$(sel, container);
+  const set = val => btns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.v === val)));
+  btns.forEach(b => b.addEventListener('click', () => { set(b.dataset.v); onPick(b.dataset.v); }));
+  return set;
+}
+function storeGet(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (_) { return d; } }
+function storeSet(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (_) { /* storage unavailable */ } }
+
+/* ===== 极限显微镜：sin(1/x) 与 x sin(1/x) 同步放大 ===== */
+(() => {
+  const cl = $('#scope-l'), cr = $('#scope-r');
+  if (!cl) return;
+  const EPS = 0.25, YH = 1.3;
+  const pl = new Plot(cl, { interactive: false });
+  const pr = new Plot(cr, { interactive: false });
+  const slider = $('#scope-k'), playBtn = $('#scope-play');
+  let k = +slider.value, playing = false, dir = 1, last = 0;
+
+  const layer = F => (c, p) => {
+    p.hband(-EPS, EPS, Theme.get('eps-fill'));
+    p.hline(EPS, Theme.get('eps'), [5, 4], 1);
+    p.hline(-EPS, Theme.get('eps'), [5, 4], 1);
+    p.fn(F, { width: 1.8, colorBy: (lo, hi) => (lo > -EPS && hi < EPS) ? Theme.get('ok') : Theme.get('curve') });
+    p.text('ε = 0.25', p.w - 10, p.Y(EPS) - 11, { align: 'right', color: Theme.get('eps') });
+  };
+  pl.layers = [layer(FN.sin1x)];
+  pr.layers = [layer(FN.xsin)];
+
+  function setK(v) {
+    k = v;
+    const W = 1.2 * Math.pow(10, -k);
+    for (const p of [pl, pr]) { p.view = { x0: -W, x1: W, y0: -YH, y1: YH }; p.request(); }
+    $('#scope-w').textContent = fmt(W, 3);
+    const L = infSup(FN.sin1x, 0, W), R = infSup(FN.xsin, 0, W);
+    $('#scope-om-l').textContent = fmt(L.hi - L.lo, 3);
+    $('#scope-om-r').textContent = fmt(R.hi - R.lo, 3);
+    const fitL = L.hi < EPS && L.lo > -EPS, fitR = R.hi < EPS && R.lo > -EPS;
+    const vl = $('#scope-v-l'), vr = $('#scope-v-r');
+    vl.textContent = fitL ? '已锁进 ε 带' : '装不进 ε 带';
+    vl.style.color = fitL ? Theme.get('ok') : Theme.get('bad');
+    vr.textContent = fitR ? '已锁进 ε 带 ✓' : '还在 ε 带外';
+    vr.style.color = fitR ? Theme.get('ok') : Theme.get('ink-2');
+  }
+  slider.addEventListener('input', () => { stop(); setK(+slider.value); });
+  function stop() { playing = false; playBtn.textContent = '▶ 自动放大'; }
+  function tick(now) {
+    if (!playing) return;
+    const dt = Math.min(64, now - (last || now)); last = now;
+    let v = k + dir * dt * 0.0011;
+    if (v >= 6.5) { v = 6.5; dir = -1; }
+    if (v <= 0) { v = 0; dir = 1; }
+    slider.value = v;
+    setK(v);
+    requestAnimationFrame(tick);
+  }
+  playBtn.addEventListener('click', () => {
+    if (playing) { stop(); return; }
+    playing = true; last = 0; playBtn.textContent = '❚❚ 暂停';
+    if (k >= 6.4) dir = -1; else if (k <= 0.05) dir = 1;
+    requestAnimationFrame(tick);
+  });
+  Lab.on('theme', () => setK(k));
+  setK(k);
+})();
+
+/* ===== 第 1 章：量词博弈、ε–δ 盒子、否定步进、δ(ε) 配方 ===== */
+
+/* ---------- 1.1 量词卡片 ---------- */
+(() => {
+  const row = $('#q-row');
+  if (!row) return;
+  const def = $('#ed-def'), box = $('#q-explain');
+  const chips = $$('.qchip', row);
+  function pick(q) {
+    chips.forEach(c => c.setAttribute('aria-pressed', String(c.dataset.q === q)));
+    $$('[data-q]', box).forEach(d => { d.hidden = d.dataset.q !== q; });
+    def.classList.remove('hl-eps', 'hl-delta', 'hl-x', 'hl-judge');
+    if (q !== 'intro') def.classList.add('hl-' + q);
+  }
+  chips.forEach(c => c.addEventListener('click', () => pick(c.getAttribute('aria-pressed') === 'true' ? 'intro' : c.dataset.q)));
+  const sw = $('#q-swap'), body = $('#q-swap-body');
+  sw.addEventListener('click', () => {
+    const open = body.hidden;
+    body.hidden = !open;
+    sw.setAttribute('aria-expanded', String(open));
+    sw.textContent = open ? '⇄ 收起' : '⇄ 如果交换前两个量词？';
+    // 翻转动画：交换 ε 与 δ 两张卡片的位置
+    const ce = chips[0], cd = chips[1];
+    const r1 = ce.getBoundingClientRect(), r2 = cd.getBoundingClientRect();
+    const [first, second] = open ? [ce, cd] : [cd, ce];
+    const after = first.nextSibling;
+    row.insertBefore(first, second);
+    row.insertBefore(second, after);
+    const n1 = ce.getBoundingClientRect(), n2 = cd.getBoundingClientRect();
+    if (!REDUCED) {
+      ce.animate([{ transform: `translate(${r1.left - n1.left}px, ${r1.top - n1.top}px)` }, { transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.3,.7,.2,1)' });
+      cd.animate([{ transform: `translate(${r2.left - n2.left}px, ${r2.top - n2.top}px)` }, { transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.3,.7,.2,1)' });
+    }
+    $('.who', cd).textContent = open ? '① 你（先选！）' : '② 你';
+    $('.who', ce).textContent = open ? '② 对手' : '① 对手';
+  });
+})();
+
+/* ---------- 1.2 ε–δ 盒子 ---------- */
+(() => {
+  const root = $('#ed-lab');
+  if (!root) return;
+  const plot = new Plot($('#ed-canvas'));
+  const CFG = {
+    sq: { view: [0.4, 3.6, -0.6, 8.6], eps: 1, delta: 0.35, A: 4, Ar: [2, 6], epsScale: 1, recipe: '取 δ = min(1, ε/5)：先用 δ ≤ 1 锁住 |x+2| < 5，再让 5δ ≤ ε。' },
+    hole: { view: [-1, 3, -0.6, 4.2], eps: 0.5, delta: 0.4, A: 2, Ar: [0, 4], epsScale: 1, recipe: '取 δ = ε：x ≠ 1 时 f(x) = x + 1，于是 |f(x) − 2| = |x − 1| < δ。' },
+    sinc: { view: [-9, 9, -0.5, 1.5], eps: 0.2, delta: 1.5, A: 1, Ar: [-0.5, 2], epsScale: 0.4, recipe: '取 δ = √(6ε)：利用 0 ≤ 1 − sin x / x ≤ x²/6。' },
+    xsin: { view: [-0.5, 0.5, -0.45, 0.45], eps: 0.15, delta: 0.25, A: 0, Ar: [-1, 1], epsScale: 0.3, recipe: '取 δ = ε：|x sin(1/x) − 0| ≤ |x| < δ。' },
+    sgn: { view: [-2, 2, -1.7, 1.7], eps: 0.5, delta: 0.6, A: 0, Ar: [-2, 2], epsScale: 1 },
+    sin1x: { view: [-0.8, 0.8, -1.6, 1.6], eps: 0.5, delta: 0.3, A: 0, Ar: [-2, 2], epsScale: 1 },
+  };
+  const S = { key: 'sq', A: 4, eps: 1, delta: 0.35, mode: 'free', follow: false, showMax: true, chk: null, dmax: NaN, game: null, pick: null };
+  const F = () => FN[S.key];
+  const a = () => F().a;
+  const cfg = () => CFG[S.key];
+
+  const elA = $('#ed-A'), outA = $('#ed-A-out');
+  const sEps = logSlider($('#ed-eps'), $('#ed-eps-out'), -4, 0.6, v => set({ eps: v }));
+  const sDel = logSlider($('#ed-delta'), $('#ed-delta-out'), -6, 0.6, v => set({ delta: v }));
+  elA.addEventListener('input', () => { const [lo, hi] = cfg().Ar; set({ A: lo + (hi - lo) * +elA.value }); });
+  function syncA() { const [lo, hi] = cfg().Ar; elA.value = (S.A - lo) / (hi - lo); outA.textContent = fmt(S.A, 4); }
+
+  let maxTimer = 0;
+  function set(p, fromSlider = true) {
+    if (p.eps !== undefined) S.eps = clamp(p.eps, 1e-4, 4);
+    if (p.delta !== undefined) S.delta = clamp(p.delta, 1e-6, 4);
+    if (p.A !== undefined) S.A = p.A;
+    if (!fromSlider || p.eps !== undefined) sEps.set(S.eps);
+    if (!fromSlider || p.delta !== undefined) sDel.set(S.delta);
+    syncA();
+    S.chk = supDev(F(), a(), S.delta, S.A);
+    if (p.eps !== undefined || p.A !== undefined || p.key) {
+      clearTimeout(maxTimer);
+      maxTimer = setTimeout(() => { S.dmax = S.showMax ? deltaMax(F(), a(), S.A, S.eps) : NaN; renderStatus(); plot.request(); }, 40);
+    }
+    if (S.follow && S.mode === 'free') plot.setView(focusView());
+    if (S.mode === 'free') S.pick = null;
+    renderStatus();
+    plot.request();
+  }
+
+  function focusView(d = S.delta, pad = 2.4) {
+    const r = infSup(F(), a(), d * pad);
+    let lo = Math.min(isFinite(r.lo) ? r.lo : S.A, S.A - S.eps), hi = Math.max(isFinite(r.hi) ? r.hi : S.A, S.A + S.eps);
+    const m = (hi - lo) * 0.18 + 1e-12;
+    return { x0: a() - pad * d, x1: a() + pad * d, y0: lo - m, y1: hi + m };
+  }
+  plot.tools($('#ed-tools'), () => focusView());
+
+  /* 手柄：直接拖动 δ 竖线与 ε 横线 */
+  const canDelta = () => S.mode === 'free' || (S.mode === 'prove' && S.game && !S.game.over && !S.game.judged);
+  const canEps = () => S.mode === 'free' || (S.mode === 'refute' && S.game && !S.game.started);
+  plot.handles = [
+    { enabled: canDelta, cursor: 'ew-resize', hit: (px) => Math.abs(px - plot.X(a() + S.delta)) < 8 || Math.abs(px - plot.X(a() - S.delta)) < 8, drag: wx => set({ delta: Math.abs(wx - a()) }, false) },
+    { enabled: canEps, cursor: 'ns-resize', hit: (px, py) => Math.abs(py - plot.Y(S.A + S.eps)) < 8 || Math.abs(py - plot.Y(S.A - S.eps)) < 8, drag: (wx, wy) => set({ eps: Math.abs(wy - S.A) }, false) },
+  ];
+  plot.clickCursor = () => (S.mode === 'refute' && S.game && S.game.started && !S.game.over) ? 'crosshair' : 'grab';
+
+  plot.layers = [(c, p) => {
+    const f = F(), A = S.A, e = S.eps, d = S.delta, x0 = a();
+    p.vband(x0 - d, x0 + d, Theme.get('delta-fill'));
+    p.hband(A - e, A + e, Theme.get('eps-fill'));
+    // 最大可行 δ 的幽灵线
+    if (S.showMax && S.mode === 'free' && isFinite(S.dmax) && S.dmax > 0) {
+      p.vline(x0 - S.dmax, Theme.get('delta'), [1, 4], 1);
+      p.vline(x0 + S.dmax, Theme.get('delta'), [1, 4], 1);
+      const X = p.X(x0 + S.dmax);
+      if (X > 0 && X < p.w - 40) p.text('δmax', X + 4, 76, { color: Theme.get('delta'), font: 'italic 12px "STIX Two Text", serif' });
+    }
+    p.vline(x0, Theme.get('ink-3'), [2, 4], 1);
+    p.fn(f, { color: Theme.get('curve'), width: 1.8 });
+    p.fn(f, { xmin: x0 - d, xmax: x0 + d, width: 2.8, colorBy: (lo, hi) => (lo > A - e && hi < A + e) ? Theme.get('ok') : Theme.get('bad') });
+    p.marks(f);
+    p.vline(x0 - d, Theme.get('delta'), [6, 4], 1.4);
+    p.vline(x0 + d, Theme.get('delta'), [6, 4], 1.4);
+    p.hline(A - e, Theme.get('eps'), [6, 4], 1.4);
+    p.hline(A + e, Theme.get('eps'), [6, 4], 1.4);
+    p.hline(A, Theme.get('eps'), [1, 3], 1);
+    const lf = 'italic 14px "STIX Two Text", "Times New Roman", serif';
+    const XL = p.X(x0 - d), XR = p.X(x0 + d);
+    if (XR - XL > 70) { p.text('a−δ', XL - 4, 52, { align: 'right', color: Theme.get('delta'), font: lf }); p.text('a+δ', XR + 4, 52, { color: Theme.get('delta'), font: lf }); }
+    else p.text('δ', XR + 4, 52, { color: Theme.get('delta'), font: lf });
+    p.text('A+ε', p.w - 8, p.Y(A + e) - 10, { align: 'right', color: Theme.get('eps'), font: lf });
+    p.text('A−ε', p.w - 8, p.Y(A - e) + 11, { align: 'right', color: Theme.get('eps'), font: lf });
+    p.text('A', p.w - 8, p.Y(A), { align: 'right', color: Theme.get('eps'), font: lf });
+    // 反例
+    const w = S.mode === 'refute' ? S.pick : (S.chk && S.chk.sup >= e ? S.chk.x : null);
+    if (w !== null && w !== undefined && isFinite(w)) {
+      const y = f.f(w), good = S.mode === 'refute' ? Math.abs(y - A) >= e : true;
+      const col = S.mode === 'refute' ? (good ? Theme.get('ok') : Theme.get('bad')) : Theme.get('bad');
+      p.seg(w, A, w, y, col, [3, 3], 1.2);
+      p.dot(w, y, 7, null, col);
+      p.dot(w, y, 3, col);
+      const X = p.X(w), Y = p.Y(y);
+      p.text(`x = ${fmt(w, 6)}`, clamp(X + 10, 4, p.w - 130), clamp(Y - 14, 14, p.h - 30), { color: col });
+    }
+  }];
+
+  /* ---------- 状态面板 ---------- */
+  const st = $('#ed-status');
+  function renderStatus() {
+    const r = S.chk, f = F();
+    if (!r) return;
+    let h = '';
+    const ok = r.sup < S.eps;
+    if (S.mode === 'refute') { st.hidden = true; return; }
+    st.hidden = false;
+    if (ok) h += `<p class="verdict ok">✓ 这个 ${M('δ')} 合格</p><p>在 0 &lt; |${M('x')} − ${M('a')}| &lt; ${M('δ')} 内，数值上 sup |${M('f')}(${M('x')}) − ${M('A')}| ≈ ${fmt(r.sup)} &lt; ${M('ε')}。</p>`;
+    else h += `<p class="verdict bad">✗ 对手找到反例</p><p>${M('x')} = ${fmt(r.x, 7)}：|${M('f')}(${M('x')}) − ${M('A')}| = ${fmt(Math.abs(f.f(r.x) - S.A))} ≥ ${M('ε')} = ${fmt(S.eps)}</p>`;
+    if (S.showMax && S.mode === 'free') {
+      const d = S.dmax;
+      if (isNaN(d)) h += '';
+      else if (d === Infinity) h += `<p class="muted">对这个 ${M('ε')}，<b>任何</b> ${M('δ')} 都合格。</p>`;
+      else if (d > 0) h += `<p class="muted">对这个 ${M('ε')}，最大可行 ${M('δ')} ≈ ${fmt(d)}（图中点线）。</p>`;
+      else h += `<p class="muted">对这个 ${M('ε')}，<b>不存在</b>合格的 ${M('δ')}：${M('δ')} 再小也有反例。${f.L === null || Math.abs(S.A - f.L) > 1e-9 ? '' : ''}</p>`;
+    }
+    st.className = 'status ' + (ok ? 'ok' : 'bad');
+    st.innerHTML = h;
+  }
+
+  /* ---------- 函数切换 ---------- */
+  const fnSet = pressGroup($('#ed-fns'), '.chip', k => load(k));
+  const formula = $('#ed-formula');
+  function load(k, keepMode) {
+    S.key = k;
+    fnSet(k);
+    $$('[data-k]', formula).forEach(s => { s.hidden = s.dataset.k !== k; });
+    const c = cfg();
+    plot.home = { x0: c.view[0], x1: c.view[1], y0: c.view[2], y1: c.view[3] };
+    plot.animateTo(plot.home, 500);
+    $('#ed-snapA').disabled = F().L === null;
+    if (!keepMode) setMode('free');
+    set({ key: true, A: c.A, eps: c.eps, delta: c.delta }, false);
+  }
+  $('#ed-snapA').addEventListener('click', () => { if (F().L !== null) set({ A: F().L }); });
+  $('#ed-follow').addEventListener('change', e => { S.follow = e.target.checked; if (S.follow) plot.animateTo(focusView(), 450); });
+  $('#ed-showmax').addEventListener('change', e => { S.showMax = e.target.checked; set({ eps: S.eps }); });
+
+  /* ---------- 模式与对局 ---------- */
+  const gameEl = $('#ed-game');
+  const modeSet = pressGroup($('#ed-modes'), 'button', m => setMode(m));
+  function lockSliders() {
+    const g = S.game;
+    elA.disabled = S.mode !== 'free' && !!g && g.started;
+    $('#ed-eps').disabled = S.mode === 'prove' || (S.mode === 'refute' && g && g.started);
+    $('#ed-delta').disabled = S.mode === 'refute' || (S.mode === 'prove' && g && (g.judged || g.over));
+  }
+  function setMode(m) {
+    S.mode = m;
+    modeSet(m);
+    S.pick = null;
+    S.game = null;
+    if (m === 'free') { gameEl.hidden = true; }
+    else if (m === 'prove') { S.game = { round: 0, lives: 3, res: [], started: false }; gameEl.hidden = false; proveIntro(); }
+    else { S.game = { round: 0, res: [], started: false, misses: 0 }; gameEl.hidden = false; refuteIntro(); }
+    lockSliders();
+    renderStatus();
+    plot.request();
+  }
+  const pips = (n, res, cur) => `<span class="pips">${Array.from({ length: n }, (_, i) => `<i class="${res[i] === true ? 'win' : res[i] === false ? 'lose' : i === cur ? 'cur' : ''}"></i>`).join('')}</span>`;
+  const ROUNDS = 5;
+
+  /* 你来证明：电脑出 ε，你选 δ */
+  const proveEps = () => [0.5, 0.2, 0.07, 0.02, 0.005].map(v => v * cfg().epsScale);
+  function proveIntro() {
+    const g = S.game;
+    gameEl.innerHTML = `<div class="game-top"><b>你来证明</b>${pips(ROUNDS, g.res, -1)}</div>
+      <div class="game-msg">你断言 ${M('lim f')} = ${M('A')}。先用滑块定好 ${M('A')}（当前 ${fmt(S.A)}），然后开始：电脑每轮给出更小的 ${M('ε')}，你拖动 ${M('δ')} 应战。三条命。</div>
+      <div class="btns"><button class="btn primary" type="button" data-act="start">开始</button></div>`;
+  }
+  function proveRound() {
+    const g = S.game;
+    g.started = true; g.judged = false;
+    const e = proveEps()[g.round];
+    S.eps = e; sEps.set(e);
+    const dm = deltaMax(F(), a(), S.A, e);
+    const d0 = isFinite(dm) && dm > 0 ? dm * 3.2 : Math.max(S.delta, 0.02);
+    set({ delta: Math.min(S.delta, d0) }, false);
+    const yr = Math.max(3 * e, 1e-9);
+    plot.animateTo({ x0: a() - 1.2 * d0, x1: a() + 1.2 * d0, y0: S.A - yr, y1: S.A + yr }, 600);
+    gameEl.innerHTML = `<div class="game-top"><b>第 ${g.round + 1} 轮 · 命 ${'●'.repeat(g.lives)}${'○'.repeat(3 - g.lives)}</b>${pips(ROUNDS, g.res, g.round)}</div>
+      <div class="game-msg">对手给出 <span class="big c-eps">ε = ${fmt(e)}</span><br>拖动青色竖线或 ${M('δ')} 滑块，选好后提交。</div>
+      <div class="btns"><button class="btn primary" type="button" data-act="submit">就用这个 δ</button><button class="btn" type="button" data-act="quit">退出</button></div>`;
+    lockSliders();
+  }
+  function proveSubmit() {
+    const g = S.game;
+    g.judged = true;
+    const r = supDev(F(), a(), S.delta, S.A);
+    S.chk = r;
+    const ok = r.sup < S.eps;
+    g.res[g.round] = ok;
+    let msg, btn;
+    if (ok) {
+      msg = `<span class="c-ok">✓ 对手在 0 &lt; |${M('x')} − ${M('a')}| &lt; ${fmt(S.delta)} 里找不到反例。</span>`;
+      g.round++;
+      if (g.round >= ROUNDS) {
+        g.over = true;
+        msg += `<br><br><b>五轮全胜！</b>但赢五轮不等于证明——证明需要对<em>每个</em> ${M('ε')} 都有效的配方。${cfg().recipe ? `<br>例如：${cfg().recipe}` : ''}<br>到 1.4 去写出你的配方。`;
+        btn = '<button class="btn" type="button" data-act="quit">回到自由探索</button>';
+      } else btn = '<button class="btn primary" type="button" data-act="next">下一轮</button>';
+    } else {
+      g.lives--;
+      msg = `<span class="c-bad">✗ 对手找到 ${M('x')} = ${fmt(r.x, 7)}，|${M('f')}(${M('x')}) − ${M('A')}| = ${fmt(Math.abs(F().f(r.x) - S.A))} ≥ ${M('ε')}。</span>`;
+      if (g.lives <= 0) {
+        g.over = true;
+        const noLim = F().L === null, wrongA = !noLim && Math.abs(S.A - F().L) > 1e-6;
+        msg += noLim ? `<br><br><b>三条命用完。</b>不是你的 ${M('δ')} 不够小——对这个函数，无论断言哪个 ${M('A')}，都有 ${M('ε')} 让任何 ${M('δ')} 失败。换到“你来反驳”模式当一次对手。`
+          : wrongA ? `<br><br><b>三条命用完。</b>你断言的 ${M('A')} = ${fmt(S.A)} 不对，真实极限是 ${fmt(F().L)}。对错误的 ${M('A')}，当 ${M('ε')} &lt; |${M('A')} − ${fmt(F().L)}| 时任何 ${M('δ')} 都会输。`
+          : `<br><br><b>三条命用完。</b>再试一次：把 ${M('δ')} 取得比“最大可行 δ”小一些。`;
+        btn = '<button class="btn primary" type="button" data-act="restart">再来一局</button><button class="btn" type="button" data-act="quit">退出</button>';
+      } else {
+        g.res[g.round] = undefined;
+        g.judged = false;
+        btn = '<button class="btn primary" type="button" data-act="retry">调整 δ 再试</button>';
+      }
+    }
+    gameEl.innerHTML = `<div class="game-top"><b>第 ${Math.min(g.round + (ok ? 0 : 1), ROUNDS)} 轮 · 命 ${'●'.repeat(Math.max(0, g.lives))}${'○'.repeat(3 - Math.max(0, g.lives))}</b>${pips(ROUNDS, g.res, g.round)}</div><div class="game-msg">${msg}</div><div class="btns">${btn}</div>`;
+    lockSliders();
+    renderStatus();
+    plot.request();
+  }
+
+  /* 你来反驳：你选 ε₀，电脑出 δ，你点出反例 */
+  const refuteDelta = [0.4, 0.05, 0.006, 7e-4, 8e-5];
+  function refuteIntro() {
+    const g = S.game;
+    gameEl.innerHTML = `<div class="game-top"><b>你来反驳</b>${pips(ROUNDS, g.res, -1)}</div>
+      <div class="game-msg">你要证明“${M('lim f')} = ${M('A')}”是<b>假</b>的。用滑块选定要反驳的 ${M('A')}（当前 ${fmt(S.A)}）和你的 ${M('ε')}<sub>0</sub>（当前 ${fmt(S.eps)}），然后开始。电脑每轮给出 ${M('δ')}——它会尽力防守。</div>
+      <div class="btns"><button class="btn primary" type="button" data-act="rstart">开始</button></div>`;
+  }
+  function refuteRound() {
+    const g = S.game;
+    g.started = true; g.misses = 0; S.pick = null;
+    const dm = deltaMax(F(), a(), S.A, S.eps);
+    const sched = refuteDelta[g.round];
+    const d = dm > 0 ? Math.min(sched, dm === Infinity ? sched : dm * 0.9) : sched;
+    g.valid = dm > 0;
+    g.d = d;
+    set({ delta: d }, false);
+    plot.animateTo(focusView(d, 1.7), 650);
+    gameEl.innerHTML = `<div class="game-top"><b>第 ${g.round + 1} 轮</b>${pips(ROUNDS, g.res, g.round)}</div>
+      <div class="game-msg">电脑选 <span class="big c-delta">δ = ${fmt(d)}</span><br>在青色区域里点一下，选出 ${M('x')}，要求 |${M('f')}(${M('x')}) − ${fmt(S.A)}| ≥ ${fmt(S.eps)}。点击会吸附到你点的高度附近的图像上。</div>
+      <div class="btns"><button class="btn" type="button" data-act="quit">退出</button></div>`;
+    lockSliders();
+    plot.request();
+  }
+  plot.onClick = (wx, wy, px, py) => {
+    const g = S.game;
+    if (S.mode !== 'refute' || !g || !g.started || g.over || g.wait) return;
+    const x = snapToGraph(plot, F(), px, py, a(), S.delta);
+    const msgEl = $('.game-msg', gameEl);
+    if (x === null) { msgEl.innerHTML = `这里不行：${M('x')} 必须满足 0 &lt; |${M('x')} − ${M('a')}| &lt; ${M('δ')}（青色区域，且 ${M('x')} ≠ ${M('a')}）。`; return; }
+    S.pick = x;
+    const v = Math.abs(F().f(x) - S.A);
+    plot.request();
+    if (v >= S.eps) {
+      g.res[g.round] = true; g.round++; g.wait = true;
+      let txt = `<span class="c-ok">✓ ${M('x')} = ${fmt(x, 7)}，|${M('f')}(${M('x')}) − ${M('A')}| = ${fmt(v)} ≥ ${M('ε')}<sub>0</sub>。这一轮你赢了。</span>`;
+      let btn = '<button class="btn primary" type="button" data-act="rnext">下一轮（δ 更小）</button>';
+      if (g.round >= ROUNDS) {
+        g.over = true;
+        txt += `<br><br><b>五轮全胜。</b>要把它变成证明，需要对<em>任意</em> ${M('δ')} 写出反例的公式：${refuteFormula()}`;
+        btn = '<button class="btn" type="button" data-act="quit">回到自由探索</button>';
+      }
+      gameEl.innerHTML = `<div class="game-top"><b>第 ${g.round} 轮</b>${pips(ROUNDS, g.res, g.round)}</div><div class="game-msg">${txt}</div><div class="btns">${btn}</div>`;
+    } else {
+      g.misses++;
+      let txt = `${M('x')} = ${fmt(x, 7)}：|${M('f')}(${M('x')}) − ${M('A')}| = ${fmt(v)} &lt; ${M('ε')}<sub>0</sub>，不够。再点一个。`;
+      if (g.misses >= 3 && g.valid) {
+        g.over = true;
+        const r = supDev(F(), a(), S.delta, S.A);
+        txt = `<b>电脑这一轮的 ${M('δ')} 是合格的。</b>数值上 sup |${M('f')}(${M('x')}) − ${M('A')}| ≈ ${fmt(r.sup)} &lt; ${M('ε')}<sub>0</sub>：这里根本没有反例。对这个 ${M('ε')}<sub>0</sub>，“证明者”赢了。如果对每个 ${M('ε')} 证明者都能这样应对，${M('lim f')} = ${M('A')} 就是真命题。<br>试着增大 ${M('ε')}<sub>0</sub> 或换一个 ${M('A')}${F().L !== null ? `（真实极限是 ${fmt(F().L)}）` : ''}。`;
+        gameEl.innerHTML = `<div class="game-top"><b>证明者守住了</b>${pips(ROUNDS, g.res, g.round)}</div><div class="game-msg">${txt}</div><div class="btns"><button class="btn primary" type="button" data-act="rrestart">重新开始</button><button class="btn" type="button" data-act="quit">退出</button></div>`;
+      } else msgEl.innerHTML = txt;
+    }
+  };
+  function refuteFormula() {
+    const k = S.key;
+    if (k === 'sin1x') return `取正整数 ${M('k')} &gt; 1/(2π${M('δ')})，令 ${M('x')} = 1/(π/2 + 2${M('k')}π)（若 ${M('A')} ≤ 0）或 ${M('x')} = 1/(3π/2 + 2${M('k')}π)（若 ${M('A')} &gt; 0），则 0 &lt; ${M('x')} &lt; ${M('δ')} 且 |sin(1/${M('x')}) − ${M('A')}| ≥ 1。`;
+    if (k === 'sgn') return `取 ${M('x')} = ${M('δ')}/2（若 ${M('A')} ≤ 0）或 ${M('x')} = −${M('δ')}/2（若 ${M('A')} &gt; 0），则 |sgn ${M('x')} − ${M('A')}| ≥ 1。`;
+    return `这里真实极限是 ${fmt(F().L)}。取 ${M('ε')}<sub>0</sub> = |${M('A')} − ${fmt(F().L)}|/2，当 ${M('δ')} 足够小时 ${M('f')}(${M('x')}) 都靠近 ${fmt(F().L)}，任取一点都是反例；${M('δ')} 较大时取靠近 ${M('a')} 的点即可。`;
+  }
+  gameEl.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const act = b.dataset.act, g = S.game;
+    if (act === 'start') proveRound();
+    else if (act === 'submit') proveSubmit();
+    else if (act === 'next') proveRound();
+    else if (act === 'retry') { g.judged = false; lockSliders(); $('.game-msg', gameEl).innerHTML = `再调整 ${M('δ')}，然后提交。`; gameEl.querySelector('.btns').innerHTML = '<button class="btn primary" type="button" data-act="submit">就用这个 δ</button>'; }
+    else if (act === 'restart') { setMode('prove'); }
+    else if (act === 'rstart') refuteRound();
+    else if (act === 'rnext') { g.wait = false; refuteRound(); }
+    else if (act === 'rrestart') { setMode('refute'); }
+    else if (act === 'quit') setMode('free');
+  });
+
+  Lab.open.ed = k => { load(k); };
+  load('sq');
+})();
+
+/* ---------- 1.3 否定步进器 ---------- */
+(() => {
+  const root = $('#neg');
+  if (!root) return;
+  const steps = $$('.st', root);
+  const rules = [
+    '在原命题前加否定号 ¬。下面把它一层层推进去。',
+    '规则 ¬∀ ≡ ∃¬：“并非对所有 ε 都成立”就是“存在某个 ε 不成立”。',
+    '规则 ¬∃ ≡ ∀¬：“不存在合格的 δ”就是“每个 δ 都不合格”。',
+    '再用一次 ¬∀ ≡ ∃¬：“并非所有 x 都满足”就是“存在一个 x 不满足”。',
+    '¬(P ⇒ Q) ≡ P ∧ ¬Q：条件 0<|x−a|<δ 原样保留（青色），只把结论否定成 |f(x)−A| ≥ ε（红色）。这个固定的 ε 记作 ε₀。读法：你先挑 ε₀，对手给任何 δ，你都能在去心邻域里找到坏点 x。',
+  ];
+  let i = 0;
+  const dots = $('#neg-dots');
+  dots.innerHTML = steps.map(() => '<i></i>').join('');
+  function show() {
+    steps.forEach((s, k) => s.setAttribute('aria-hidden', String(k !== i)));
+    $$('i', dots).forEach((d, k) => d.classList.toggle('on', k === i));
+    $('#neg-rule').textContent = rules[i];
+    $('#neg-prev').disabled = i === 0;
+    $('#neg-next').textContent = i === steps.length - 1 ? '从头再来 ↺' : '下一步 →';
+  }
+  $('#neg-prev').addEventListener('click', () => { i = Math.max(0, i - 1); show(); });
+  $('#neg-next').addEventListener('click', () => { i = i === steps.length - 1 ? 0 : i + 1; show(); });
+  show();
+})();
+
+/* ---------- 1.4 δ(ε) 配方工坊 ---------- */
+function dmaxXsin(e) {
+  if (e >= 1) return Infinity;
+  // 找最大的 t ≤ 1/ε 使 |sin t| ≥ ε t，则 δmax = 1/t
+  const t0 = 1 / e;
+  const K = Math.floor((t0 - PI / 2) / PI);
+  const tk = PI / 2 + K * PI;
+  const h = t => Math.abs(Math.sin(t)) - e * t;
+  const step = PI / 3000;
+  let t = t0, prev = t0;
+  while (t > tk) { if (h(t) >= 0) break; prev = t; t -= step; }
+  if (t <= tk) t = tk;
+  let lo = t, hi = prev;
+  for (let i = 0; i < 60; i++) { const m = (lo + hi) / 2; if (h(m) >= 0) lo = m; else hi = m; }
+  return 1 / lo;
+}
+const RECIPES = {
+  sq: {
+    F: { f: x => x * x }, a: 2, L: 4, dmax: e => -2 + Math.sqrt(4 + e), cap: 1, capE: 5,
+    presets: ['eps/4', 'eps/5', 'min(1, eps/5)', 'min(1/2, eps/5)', 'sqrt(eps)'],
+    start: 'eps/5',
+    scratch: [
+      '目标：|x² − 4| < ε。分解 |x² − 4| = |x − 2|·|x + 2|。',
+      '|x − 2| 由 δ 控制，|x + 2| 却随 x 变化——先把它锁住：约定 δ ≤ 1，则 1 < x < 3，|x + 2| < 5。',
+      '于是 |x² − 4| < 5|x − 2| < 5δ，只要 5δ ≤ ε。两个要求合并：δ = min(1, ε/5)。',
+    ],
+    proof: [
+      ['recipe', '任给 ε > 0，取 δ = min{1, ε/5}。'],
+      ['cap', '设 0 < |x − 2| < δ。由 δ ≤ 1 得 1 < x < 3，从而 |x + 2| < 5。'],
+      ['lin', '于是 |x² − 4| = |x − 2|·|x + 2| < 5|x − 2| < 5δ ≤ ε。'],
+      [null, '所以 lim<sub>x→2</sub> x² = 4。∎'],
+    ],
+  },
+  recip: {
+    F: { f: x => 1 / x }, a: 1, L: 1, dmax: e => e / (1 + e), cap: 0.5, capE: 1,
+    presets: ['eps/2', 'eps', 'min(1/2, eps/2)', 'eps/(1+eps)', 'min(1, eps/2)'],
+    start: 'eps/2',
+    scratch: [
+      '目标：|1/x − 1| = |x − 1| / |x| < ε。分子由 δ 控制，麻烦在分母 |x| 可能很小。',
+      '若 δ ≥ 1，去心邻域会伸到 0 附近，1/x 无界——必须限制 δ ≤ 1/2，这样 x > 1/2，1/|x| < 2。',
+      '于是 |1/x − 1| < 2|x − 1| < 2δ，只要 2δ ≤ ε。合并：δ = min(1/2, ε/2)。',
+    ],
+    proof: [
+      ['recipe', '任给 ε > 0，取 δ = min{1/2, ε/2}。'],
+      ['cap', '设 0 < |x − 1| < δ。由 δ ≤ 1/2 得 x > 1/2，从而 1/|x| < 2。'],
+      ['lin', '于是 |1/x − 1| = |x − 1|/|x| < 2|x − 1| < 2δ ≤ ε。'],
+      [null, '所以 lim<sub>x→1</sub> 1/x = 1。∎'],
+    ],
+  },
+  xsin: {
+    F: FN.xsin, a: 0, L: 0, dmax: dmaxXsin, cap: null,
+    presets: ['eps', '2eps', 'eps/2', 'sqrt(eps)', 'min(eps, 1)'],
+    start: '2eps',
+    scratch: [
+      '目标：|x sin(1/x) − 0| < ε。sin(1/x) 疯狂振荡，但它有界：|sin(1/x)| ≤ 1。',
+      '于是 |x sin(1/x)| ≤ |x|——“有界量乘无穷小”，振荡被 |x| 压住。',
+      '只要 |x| < ε 即可：δ = ε。（δ = 2ε 为什么不行？看右图锯齿边界。）',
+    ],
+    proof: [
+      ['recipe', '任给 ε > 0，取 δ = ε。'],
+      ['lin', '设 0 < |x| < δ，则 |x sin(1/x) − 0| = |x|·|sin(1/x)| ≤ |x| < δ = ε。'],
+      [null, '所以 lim<sub>x→0</sub> x sin(1/x) = 0。∎'],
+    ],
+  },
+};
+(() => {
+  const root = $('#rc');
+  if (!root) return;
+  const plot = new Plot($('#rc-canvas'), { interactive: false, xlog: true, ylog: true, view: { x0: 1e-6, x1: 1e3, y0: 1e-7, y1: 1e3 }, xName: 'ε', yName: 'δ' });
+  const input = $('#rc-in'), status = $('#rc-status');
+  const EPSS = Array.from({ length: 360 }, (_, i) => Math.pow(10, -6 + 9 * i / 359));
+  const S = { key: 'sq', fn: null, results: null, hl: null };
+  const R = () => RECIPES[S.key];
+  const dmCache = {};
+  function dmax(e) { return R().dmax(e); }
+
+  plot.layers = [(c, p) => {
+    const r = R();
+    // 安全区
+    c.beginPath();
+    c.moveTo(0, p.h);
+    for (let px = 0; px <= p.w; px += 2) {
+      const e = p.ix(px), d = dmax(e);
+      c.lineTo(px, d === Infinity ? -5 : clamp(p.Y(d), -5, p.h + 5));
+    }
+    c.lineTo(p.w, p.h);
+    c.closePath();
+    c.fillStyle = Theme.get('delta-fill');
+    c.fill();
+    const pts = [];
+    for (let px = 0; px <= p.w; px += 1) { const e = p.ix(px), d = dmax(e); pts.push([e, d === Infinity ? p.view.y1 * 10 : d]); }
+    p.polyline(pts, Theme.get('delta'), S.hl === 'safe' ? 3 : 2);
+    p.text('安全区  δ ≤ δmax(ε)', 10, p.h - 30, { color: Theme.get('delta'), font: FONT_UI });
+    // 证明行高亮
+    if (S.hl === 'cap' && r.cap) { p.hline(r.cap, Theme.get('eps'), [6, 4], 2); p.text(`δ ≤ ${r.cap === 0.5 ? '1/2' : r.cap}`, 10, p.Y(r.cap) - 10, { color: Theme.get('eps'), font: FONT_UI }); if (r.capE) p.vline(r.capE, Theme.get('eps'), [2, 4], 1.2); }
+    if (S.hl === 'lin') { const k = S.key === 'sq' ? 1 / 5 : S.key === 'recip' ? 1 / 2 : 1; p.polyline([[1e-6, k * 1e-6], [1e3, k * 1e3]], Theme.get('eps'), 2, [6, 4]); }
+    // 配方曲线
+    if (S.fn) {
+      let cur = null, seg = [];
+      const flush = () => { if (seg.length > 1) p.polyline(seg, cur ? Theme.get('ok') : Theme.get('bad'), S.hl === 'recipe' ? 4 : 2.6); seg = []; };
+      for (let px = 0; px <= p.w; px += 1) {
+        const e = p.ix(px);
+        let d;
+        try { d = S.fn({ eps: e }); } catch (_) { d = NaN; }
+        if (!(d > 0) || !isFinite(d)) { flush(); cur = null; continue; }
+        const ok = d <= dmax(e) * (1 + 1e-9);
+        if (ok !== cur) { if (seg.length) { const last = seg[seg.length - 1]; flush(); seg.push(last); } cur = ok; }
+        seg.push([e, d]);
+      }
+      flush();
+      if (S.results && S.results.first) { const fe = S.results.first.e; p.vline(fe, Theme.get('bad'), [3, 3], 1.2); p.dot(fe, S.results.first.d, 5, Theme.get('bad')); }
+    }
+  }];
+
+  function scratch() {
+    const r = R();
+    $('#rc-scratch').innerHTML = `<h5>草稿 · 倒推（不写进证明）</h5><ol>${r.scratch.map((s, i) => `<li${i ? ' hidden' : ''}>${s}</li>`).join('')}</ol><div class="btns" style="margin-top:8px"><button class="btn sm" type="button" id="rc-more">下一条提示</button></div>`;
+    $('#rc-more').addEventListener('click', () => {
+      const hid = $$('#rc-scratch li[hidden]');
+      if (hid.length) hid[0].hidden = false;
+      if (hid.length <= 1) $('#rc-more').disabled = true;
+    });
+    $('#rc-proof').innerHTML = `<h5>正式证明 · 正推（标准配方）</h5><ol>${r.proof.map(([k, s]) => `<li${k ? ` data-hl="${k}" tabindex="0"` : ''}>${s}</li>`).join('')}</ol>`;
+    $$('#rc-proof li[data-hl]').forEach(li => {
+      const on = () => { S.hl = li.dataset.hl; plot.request(); };
+      const off = () => { S.hl = null; plot.request(); };
+      li.addEventListener('mouseenter', on); li.addEventListener('focus', on);
+      li.addEventListener('mouseleave', off); li.addEventListener('blur', off);
+    });
+    $('#rc-presets').innerHTML = r.presets.map(p => `<button class="chip mono" type="button" data-p="${p}">${p.replace(/eps/g, 'ε')}</button>`).join('');
+  }
+  $('#rc-presets').addEventListener('click', e => { const b = e.target.closest('[data-p]'); if (!b) return; input.value = b.dataset.p; run(); });
+
+  function run() {
+    let fn;
+    input.classList.remove('err');
+    try { fn = Expr.compile(input.value, ['eps']); fn({ eps: 0.1 }); }
+    catch (err) { input.classList.add('err'); status.innerHTML = `<span class="c-bad">无法解析：${err.message}</span>`; S.fn = null; S.results = null; plot.request(); return; }
+    S.fn = fn;
+    const r = R();
+    let first = null, nFail = 0;
+    for (const e of EPSS) {
+      let d;
+      try { d = fn({ eps: e }); } catch (_) { d = NaN; }
+      const dm = r.dmax(e);
+      const ok = d > 0 && isFinite(d) && d <= dm * (1 + 1e-9);
+      if (!ok) { nFail++; if (!first) first = { e, d, dm }; }
+    }
+    S.results = { first, nFail };
+    if (!first) {
+      status.innerHTML = `<p class="c-ok"><b>✓ 360 个 ε 全部通过。</b>你的曲线整条落在安全区内。</p><p class="muted">这是很强的数值证据，但还不是证明：证明要用左边那样的不等式链，对<em>所有</em> ε 一次性说清楚。</p>`;
+    } else {
+      const { e, d, dm } = first;
+      let why;
+      if (!(d > 0) || !isFinite(d)) why = `此时 δ(ε) = ${fmt(d)}，不是正数。`;
+      else {
+        const sd = supDev(r.F, r.a, d, r.L);
+        why = `此时 δ = ${fmt(d)}，但最大可行 δ 只有 ${fmt(dm)}。对手取 x = ${fmt(sd.x, 7)}，得 |f(x) − ${r.L}| = ${fmt(sd.sup)} ≥ ε。`;
+      }
+      const hint = S.key === 'sq' && first.e > 1 ? '提示：只有大 ε 出错？想想 |x + 2| 什么时候会超过 5。'
+        : S.key === 'recip' && first.e > 0.5 ? '提示：δ 太大时去心邻域碰到了 x = 0 附近。'
+        : S.key === 'xsin' ? '提示：x sin(1/x) 在 x 接近 δ 处可以几乎等于 x 本身。'
+        : '提示：对小 ε 也失败，说明系数取大了。';
+      status.innerHTML = `<p class="c-bad"><b>✗ 在 ${nFail} / 360 个 ε 上失败。</b>第一个失败点 ε = ${fmt(e)}：${why}</p><p class="muted">${hint}</p>`;
+    }
+    plot.request();
+  }
+  $('#rc-go').addEventListener('click', run);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') run(); });
+  const tSet = pressGroup($('#rc-targets'), '.chip', k => load(k));
+  function load(k) { S.key = k; tSet(k); scratch(); input.value = R().start; run(); }
+  load('sq');
+})();
+
+/* ===== 第 2 章：数列工坊、收集挑战、坏点机器 ===== */
+const SUBS = { '0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄', '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉' };
+const subN = n => String(n).split('').map(c => SUBS[c] || c).join('');
+
+(() => {
+  const root = $('#hn-lab');
+  if (!root) return;
+  const plot = new Plot($('#hn-canvas'));
+  const vplot = new Plot($('#hn-vcanvas'), { interactive: false, xName: 'n' });
+  const NMAX = 4000, NSHOW = 200;
+  const CFG = {
+    sin1x: { seqs: ['1/(n*pi)', '1/(pi/2 + 2n*pi)'], view: [-0.42, 0.42, -1.45, 1.45], vy: [-1.35, 1.35] },
+    sinpix: { seqs: ['1/n', '2/(4n+1)'], view: [-1.1, 1.1, -1.45, 1.45], vy: [-1.35, 1.35] },
+    xsin: { seqs: ['1/(n*pi)', '1/(pi/2 + 2n*pi)'], view: [-0.42, 0.42, -0.45, 0.45], vy: [-0.36, 0.36] },
+    sgn: { seqs: ['1/n', '-1/n'], view: [-1.2, 1.2, -1.5, 1.5], vy: [-1.35, 1.35] },
+    sinc: { seqs: ['1/n', '(-1)^n/n'], view: [-4, 4, -0.4, 1.3], vy: [0.8, 1.04] },
+  };
+  const COLORS = ['seq-a', 'seq-b', 'seq-c'];
+  const NAMES = ['x', 'y', 'z'];
+  const slots = [0, 1, 2].map(i => {
+    const el = $(`.slot[data-i="${i}"]`);
+    return { i, el, input: $('input', el), btn: $('.x', el), infoEl: $('.slot-info', el), on: i < 2, mix: false, xs: null, an: null, err: null };
+  });
+  const S = { key: 'sin1x', N: 30, follow: true, playing: false, collected: [], hint: 0 };
+  const F = () => FN[S.key];
+
+  function analyze(xs) {
+    const f = F(), a = f.a;
+    let bad = 0, hitA = false, tail = 0, mid = 0;
+    for (let n = 1; n <= NMAX; n++) { const x = xs[n]; if (!isFinite(x)) bad++; else if (x === a) hitA = true; }
+    for (let n = 2000; n <= NMAX; n++) tail = Math.max(tail, Math.abs(xs[n] - a));
+    for (let n = 500; n <= 1000; n++) mid = Math.max(mid, Math.abs(xs[n] - a));
+    const toA = bad === 0 && tail < 0.05 && (tail === 0 || tail <= mid * 0.85);
+    let lo = Infinity, hi = -Infinity, cnt = 0;
+    for (let n = 2000; n <= NMAX; n++) { const y = f.f(xs[n]); if (isFinite(y)) { cnt++; if (y < lo) lo = y; if (y > hi) hi = y; } }
+    const conv = cnt > 1900 && hi - lo < 2e-3;
+    const r0 = v => Math.abs(v) < 1e-9 ? 0 : v;
+    return { bad, hitA, toA, conv, lim: conv ? r0((lo + hi) / 2) : null, lo: r0(lo), hi: r0(hi), valid: bad === 0 && toA && !hitA };
+  }
+  function compute(s) {
+    s.err = null; s.xs = null; s.an = null;
+    if (!s.on) return;
+    const xs = new Float64Array(NMAX + 1);
+    xs[0] = NaN;
+    if (s.mix) {
+      const A = slots[0].xs, B = slots[1].xs;
+      if (!A || !B || !slots[0].on || !slots[1].on) { s.err = '交错需要 xₙ 与 yₙ 都启用且有效'; return; }
+      for (let n = 1; n <= NMAX; n++) xs[n] = n % 2 ? A[(n + 1) / 2] : B[n / 2];
+    } else {
+      let fn;
+      try { fn = Expr.compile(s.input.value, ['n']); } catch (e) { s.err = e.message; return; }
+      for (let n = 1; n <= NMAX; n++) xs[n] = fn({ n });
+    }
+    s.xs = xs;
+    s.an = analyze(xs);
+  }
+  function slotInfo(s) {
+    const nm = NAMES[s.i] + 'ₙ';
+    s.el.classList.toggle('off', !s.on);
+    s.btn.textContent = s.on ? '✓' : '○';
+    s.input.classList.toggle('err', !!s.err);
+    if (!s.on) { s.infoEl.innerHTML = '<span class="muted">未启用（点右侧按钮打开）</span>'; return; }
+    if (s.err) { s.infoEl.innerHTML = `<span class="bad">${s.err}</span>`; return; }
+    const a = s.an, parts = [];
+    if (a.bad) parts.push(`<span class="bad">${a.bad} 项无定义</span>`);
+    parts.push(a.toA ? `<span class="ok">${nm} → 0</span>` : `<span class="bad">${nm} 看起来不趋于 0，不能用</span>`);
+    if (a.hitA) parts.push(`<span class="bad">出现了 ${nm} = 0，违反 ${nm} ≠ a</span>`);
+    parts.push(a.conv ? `f(${nm}) → <b>${fmt(a.lim, 4)}</b>` : `f(${nm}) 在 [${fmt(a.lo, 3)}, ${fmt(a.hi, 3)}] 间摆动，<b>不收敛</b>`);
+    s.infoEl.innerHTML = parts.join(' · ');
+  }
+  function verdict() {
+    const el = $('#hn-verdict'), f = F();
+    const vs = slots.filter(s => s.on && s.an && s.an.valid);
+    if (!vs.length) { el.innerHTML = '<span class="muted">至少需要一个趋于 0、且各项不等于 0 的数列。</span>'; return; }
+    const div = vs.filter(s => !s.an.conv);
+    const lims = vs.filter(s => s.an.conv);
+    const nm = s => `${NAMES[s.i]}ₙ`;
+    if (div.length) {
+      el.innerHTML = `<span class="hl c-bad">f(${nm(div[0])}) 发散</span>，而 ${nm(div[0])} → 0。由 Heine 归结原理，<b>lim<sub>x→0</sub> f(x) 不存在</b>。`;
+      return;
+    }
+    for (let i = 0; i < lims.length; i++) for (let j = i + 1; j < lims.length; j++) {
+      if (Math.abs(lims[i].an.lim - lims[j].an.lim) > 2e-3) {
+        el.innerHTML = `<span class="hl c-bad">两条路径，两个结论：</span>f(${nm(lims[i])}) → ${fmt(lims[i].an.lim, 3)}，f(${nm(lims[j])}) → ${fmt(lims[j].an.lim, 3)}。由 Heine 归结原理，<b>lim<sub>x→0</sub> f(x) 不存在</b>。`;
+        return;
+      }
+    }
+    const L = lims[0].an.lim;
+    el.innerHTML = `<span class="hl c-ok">所有试过的数列都给出 ${fmt(L, 4)}。</span>这与“极限是 ${fmt(L, 4)}”相容——但有限个数列<b>不能</b>证明极限存在。${f.L !== null ? `（事实上 lim = ${fmt(f.L)}，可以用 ε–δ 证明。）` : '再找找别的路径？'}`;
+  }
+
+  /* ---------- 收集挑战 ---------- */
+  const TARGETS = [{ v: 1, l: '1' }, { v: -1, l: '−1' }, { v: 0, l: '0' }, { v: 0.5, l: '1/2' }, { v: -Math.sqrt(3) / 2, l: '−√3/2' }, { v: 0.3, l: '0.3' }];
+  const tgEl = $('#hn-targets'), nl = $('#hn-numline');
+  tgEl.innerHTML = TARGETS.map((t, i) => `<span class="chip" data-t="${i}">sin(1/xₙ) → ${t.l}</span>`).join('');
+  nl.innerHTML = [-1, -0.5, 0, 0.5, 1].map(v => `<span class="tk" style="left:${(v + 1) * 50}%"></span><span class="tl" style="left:${(v + 1) * 50}%">${fmt(v)}</span>`).join('');
+  S.collected = storeGet('limlab-collect', []);
+  function collect() {
+    if (S.key !== 'sin1x') return;
+    let added = false;
+    for (const s of slots) {
+      if (!s.on || !s.an || !s.an.valid || !s.an.conv) continue;
+      const v = s.an.lim;
+      if (!S.collected.some(c => Math.abs(c - v) < 2e-3)) { S.collected.push(v); added = true; }
+    }
+    if (added) storeSet('limlab-collect', S.collected);
+    renderCollect();
+  }
+  function renderCollect() {
+    $$('.pt', nl).forEach(p => p.remove());
+    S.collected.forEach(v => { const p = document.createElement('span'); p.className = 'pt'; p.style.left = `${clamp((v + 1) * 50, 0, 100)}%`; p.title = fmt(v, 4); nl.appendChild(p); });
+    let done = 0;
+    $$('[data-t]', tgEl).forEach(c => { const t = TARGETS[+c.dataset.t]; const ok = S.collected.some(v => Math.abs(v - t.v) < 2e-3); c.classList.toggle('done', ok); if (ok) done++; c.textContent = `${ok ? '✓ ' : ''}sin(1/xₙ) → ${t.l}`; });
+    const ins = $('#hn-insight');
+    if (done >= 4 && ins.hidden) {
+      ins.hidden = false;
+      ins.innerHTML = `<b>规律出现了。</b>$\\sin t=c$ 的一组解是 $t=\\arcsin c+2n\\pi$，所以 $x_n=\\dfrac{1}{\\arcsin c+2n\\pi}\\to0$ 使 $\\sin\\dfrac1{x_n}\\equiv c$。<strong>$[-1,1]$ 中每个数都是某条路径上的极限</strong>——这比“两个数列极限不同”强得多：$\\sin\\frac1x$ 在 $0$ 附近的“聚点值”铺满了整个区间。`;
+      typeset(ins);
+    }
+  }
+  const HINTS = [
+    '想让 sin(1/xₙ) 恒等于 c，就让 1/xₙ 落在方程 sin t = c 的解上。',
+    'sin t = c 的一组解是 t = arcsin(c) + 2nπ，n 越大 t 越大、xₙ = 1/t 越小。',
+    '例如 c = 1/2：在任一输入框里写 1/(arcsin(1/2) + 2n*pi)，或 1/(pi/6 + 2n*pi)。',
+  ];
+  $('#hn-hint').addEventListener('click', e => { e.target.textContent = HINTS[S.hint % HINTS.length]; S.hint++; e.target.style.whiteSpace = 'normal'; e.target.style.textAlign = 'left'; });
+
+  /* ---------- 绘图 ---------- */
+  plot.layers = [(c, p) => {
+    const f = F();
+    p.fn(f, { width: 1.6 });
+    p.marks(f);
+    for (const s of slots) {
+      if (!s.on || !s.xs) continue;
+      const col = Theme.get(COLORS[s.i]);
+      c.strokeStyle = col;
+      c.lineWidth = 1;
+      c.globalAlpha = .6;
+      c.beginPath();
+      for (let n = 1; n <= S.N; n++) { const X = p.X(s.xs[n]); if (X > -5 && X < p.w + 5) { c.moveTo(X, p.h - 28); c.lineTo(X, p.h - 20); } }
+      c.stroke();
+      c.globalAlpha = 1;
+      for (let n = 1; n < S.N; n++) { const x = s.xs[n], y = f.f(x); if (isFinite(x) && isFinite(y)) p.dot(x, y, 3.2, col); }
+      const x = s.xs[S.N], y = f.f(x);
+      if (isFinite(x) && isFinite(y)) {
+        p.dot(x, y, 6.5, col, Theme.get('plot-bg'));
+        p.text(`${NAMES[s.i]}${subN(S.N)}`, p.X(x) + 9, p.Y(y) - 13 + s.i * 4, { color: col, font: FONT_MATH });
+      }
+    }
+  }];
+  vplot.layers = [(c, p) => {
+    const f = F();
+    for (const s of slots) {
+      if (!s.on || !s.xs) continue;
+      const col = Theme.get(COLORS[s.i]);
+      const pts = [];
+      for (let n = 1; n <= S.N; n++) pts.push([n, f.f(s.xs[n])]);
+      c.globalAlpha = .35; p.polyline(pts, col, 1); c.globalAlpha = 1;
+      for (const [n, y] of pts) if (isFinite(y)) p.dot(n, y, n === S.N ? 4.5 : 2.6, col);
+      if (s.an && s.an.valid && s.an.conv) { p.hline(s.an.lim, col, [5, 4], 1.2); p.text(`→ ${fmt(s.an.lim, 3)}`, p.w - 8, p.Y(s.an.lim) - 9 - s.i * 2, { align: 'right', color: col }); }
+    }
+  }];
+
+  function followTarget() {
+    let r = 0;
+    for (const s of slots) if (s.on && s.xs && isFinite(s.xs[S.N])) r = Math.max(r, Math.abs(s.xs[S.N] - F().a));
+    if (!(r > 0)) return null;
+    const c = CFG[S.key];
+    return { x0: F().a - 2.8 * r, x1: F().a + 2.8 * r, y0: c.view[2], y1: c.view[3] };
+  }
+  function followBlend(k) {
+    const t = followTarget();
+    if (!t) return;
+    const v = plot.view;
+    const w = Math.exp(lerp(Math.log(v.x1 - v.x0), Math.log(t.x1 - t.x0), k));
+    const cx = lerp((v.x0 + v.x1) / 2, (t.x0 + t.x1) / 2, k);
+    plot.view = { x0: cx - w / 2, x1: cx + w / 2, y0: t.y0, y1: t.y1 };
+    plot.request();
+  }
+  plot.onView = () => { if (S.follow) { S.follow = false; $('#hn-follow').checked = false; } };
+  plot.tools($('#hn-tools'));
+
+  function setN(n) {
+    S.N = clamp(Math.round(n), 1, NSHOW);
+    $('#hn-N').value = S.N;
+    $('#hn-N-out').textContent = S.N;
+    const c = CFG[S.key];
+    vplot.view = { x0: 0, x1: Math.max(10, S.N) + 1, y0: c.vy[0], y1: c.vy[1] };
+    vplot.request();
+    plot.request();
+  }
+  $('#hn-N').addEventListener('input', e => { stopPlay(); setN(+e.target.value); if (S.follow) { const t = followTarget(); if (t) plot.animateTo(t, 300); } });
+  $('#hn-follow').addEventListener('change', e => { S.follow = e.target.checked; if (S.follow) { const t = followTarget(); if (t) plot.animateTo(t, 500); } });
+
+  const playBtn = $('#hn-play');
+  function stopPlay() { S.playing = false; playBtn.textContent = '▶ 播放 n → ∞'; }
+  playBtn.addEventListener('click', () => {
+    if (S.playing) { stopPlay(); return; }
+    S.playing = true;
+    playBtn.textContent = '❚❚ 暂停';
+    if (S.N >= NSHOW) setN(1);
+    let last = 0, acc = 0;
+    const tick = now => {
+      if (!S.playing) return;
+      const dt = last ? Math.min(80, now - last) : 16;
+      last = now; acc += dt;
+      const rate = S.N < 15 ? 260 : S.N < 50 ? 90 : 40;
+      let n = S.N;
+      while (acc > rate && n < NSHOW) { n++; acc -= rate; }
+      if (n !== S.N) setN(n);
+      if (S.follow) followBlend(REDUCED ? 1 : 0.1);
+      if (S.N >= NSHOW) { stopPlay(); return; }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  });
+
+  function recomputeAll() {
+    for (const s of slots) if (!s.mix) compute(s);
+    for (const s of slots) if (s.mix) compute(s);
+    slots.forEach(slotInfo);
+    verdict();
+    collect();
+    plot.request(); vplot.request();
+  }
+  slots.forEach(s => {
+    let t = 0;
+    s.input.addEventListener('input', () => { clearTimeout(t); t = setTimeout(recomputeAll, 280); });
+    s.input.addEventListener('change', recomputeAll);
+    s.input.addEventListener('focus', () => { if (s.mix) { s.mix = false; s.input.readOnly = false; s.input.value = ''; recomputeAll(); } });
+    s.btn.addEventListener('click', () => { s.on = !s.on; if (!s.on && s.mix) { s.mix = false; s.input.readOnly = false; s.input.value = ''; } recomputeAll(); });
+  });
+  function mixNow() {
+    const s = slots[2];
+    s.mix = true; s.on = true; s.input.readOnly = true;
+    s.input.value = '交错：x₁, y₁, x₂, y₂, …';
+    recomputeAll();
+    if (S.N < 40) setN(40);
+  }
+  $('#hn-mix').addEventListener('click', mixNow);
+  $('#hn-reset').addEventListener('click', () => load(S.key));
+
+  const fnSet = pressGroup($('#hn-fns'), '.chip', k => load(k));
+  function load(k) {
+    stopPlay();
+    S.key = k;
+    fnSet(k);
+    const c = CFG[k];
+    slots.forEach((s, i) => { s.mix = false; s.input.readOnly = false; s.on = i < 2; s.input.value = i < 2 ? c.seqs[i] : ''; });
+    plot.home = { x0: c.view[0], x1: c.view[1], y0: c.view[2], y1: c.view[3] };
+    S.follow = true; $('#hn-follow').checked = true;
+    recomputeAll();
+    setN(30);
+    const t = followTarget();
+    plot.animateTo(t || plot.home, 500);
+    $('#hn-collect').hidden = k !== 'sin1x';
+  }
+  Lab.open.heine = arg => {
+    if (arg === 'mix') { load('sin1x'); mixNow(); }
+    else load(arg || 'sin1x');
+    return root;
+  };
+  Lab.on('theme', renderCollect);
+  load('sin1x');
+  renderCollect();
+})();
+
+/* ---------- 2.3 坏点机器 ---------- */
+(() => {
+  const root = $('#br-lab');
+  if (!root) return;
+  const plot = new Plot($('#br-canvas'));
+  const S = { A: 0, ns: [1] };
+  const f = FN.sin1x;
+  const wit = (n, A) => { const ph = A <= 0 ? PI / 2 : 3 * PI / 2; const k = Math.max(0, Math.floor((n - ph) / TAU) + 1); return 1 / (ph + k * TAU); };
+  const cur = () => S.ns[S.ns.length - 1];
+  const viewFor = n => ({ x0: -1.35 / n, x1: 1.35 / n, y0: -2.7, y1: 2.7 });
+  plot.layers = [(c, p) => {
+    const n = cur(), d = 1 / n, A = S.A;
+    p.vband(-d, d, Theme.get('delta-fill'));
+    p.vline(-d, Theme.get('delta'), [6, 4], 1.3); p.vline(d, Theme.get('delta'), [6, 4], 1.3);
+    p.hband(A - 1, A + 1, Theme.get('eps-fill'));
+    p.hline(A - 1, Theme.get('eps'), [6, 4], 1.2); p.hline(A + 1, Theme.get('eps'), [6, 4], 1.2);
+    p.hline(A, Theme.get('eps'), [1, 3], 1);
+    p.fn(f, { width: 1.5 });
+    const lf = 'italic 14px "STIX Two Text", serif';
+    p.text('A+ε₀', p.w - 8, p.Y(A + 1) - 10, { align: 'right', color: Theme.get('eps'), font: lf });
+    p.text('A−ε₀', p.w - 8, p.Y(A - 1) + 11, { align: 'right', color: Theme.get('eps'), font: lf });
+    p.text(`δ = 1/${n}`, p.X(d) - 6, 52, { align: 'right', color: Theme.get('delta'), font: lf });
+    for (const m of S.ns) {
+      const x = wit(m, A), y = f.f(x), last = m === n;
+      p.dot(x, y, last ? 7 : 4, Theme.get('seq-a'), last ? Theme.get('plot-bg') : null);
+      if (last) { p.seg(x, A, x, y, Theme.get('seq-a'), [3, 3], 1.2); p.text(`x${subN(m)}`, p.X(x) + 10, p.Y(y) + (y > A ? -12 : 14), { color: Theme.get('seq-a'), font: lf }); }
+    }
+  }];
+  plot.tools($('#br-tools'), () => viewFor(cur()));
+  function rows() {
+    const show = S.ns.slice(-7);
+    $('#br-rows').innerHTML = show.map(n => { const x = wit(n, S.A), y = f.f(x); return `<tr><td>${n}</td><td>${fmt(1 / n, 4)}</td><td>${fmt(x, 5)}</td><td>${fmt(y, 4)}</td><td>${fmt(Math.abs(y - S.A), 4)}</td></tr>`; }).join('');
+    $('#br-rule').innerHTML = `取 ${M('ε')}<sub>0</sub> = 1。因为 ${M('A')} = ${fmt(S.A)} ${S.A <= 0 ? '≤ 0，机器取 sin(1/x) = 1 的点' : '&gt; 0，机器取 sin(1/x) = −1 的点'}，于是 |${M('f')}(${M('x')}<sub>n</sub>) − ${M('A')}| = 1 + |${M('A')}| ≥ 1。同时 0 &lt; ${M('x')}<sub>n</sub> &lt; 1/${M('n')}，所以 ${M('x')}<sub>n</sub> → 0 而 ${M('f')}(${M('x')}<sub>n</sub>) ↛ ${M('A')}。`;
+  }
+  function go(n, anim = true) {
+    if (!S.ns.includes(n)) S.ns.push(n);
+    S.ns.sort((x, y) => x - y);
+    S.ns = S.ns.filter(m => m <= n);
+    rows();
+    if (anim) plot.animateTo(viewFor(n), 650); else plot.setView(viewFor(n));
+  }
+  $('#br-next').addEventListener('click', () => go(cur() + 1));
+  $('#br-jump').addEventListener('click', () => go(1000));
+  $('#br-reset').addEventListener('click', () => { S.ns = [1]; go(1); });
+  $('#br-A').addEventListener('input', e => { S.A = +e.target.value; $('#br-A-out').textContent = fmt(S.A); rows(); plot.request(); });
+  Lab.open.bridge = () => root;
+  go(1, false);
+})();
+
+/* ===== 第 3 章：振幅计、两点博弈 ===== */
+(() => {
+  const root = $('#ca-lab');
+  if (!root) return;
+  const plot = new Plot($('#ca-canvas'));
+  const wplot = new Plot($('#ca-wcanvas'), { interactive: false, xlog: true, view: { x0: 1e-6, x1: 2.5, y0: -0.1, y1: 2.3 }, xName: 'δ' });
+  const CFG = {
+    sin1x: { view: [-0.8, 0.8, -1.6, 1.6], d: 0.2 },
+    xsin: { view: [-0.5, 0.5, -0.5, 0.5], d: 0.3 },
+    sgn: { view: [-1.5, 1.5, -1.6, 1.6], d: 0.5 },
+    sinc: { view: [-8, 8, -0.5, 1.4], d: 2 },
+    sq: { view: [0.4, 3.6, -0.6, 9], d: 0.5 },
+  };
+  const S = { key: 'sin1x', d: 0.2, follow: true, curve: [], r: null };
+  const F = () => FN[S.key];
+  const sl = logSlider($('#ca-delta'), $('#ca-delta-out'), -6, 0.38, v => setD(v));
+
+  function focus(d = S.d) {
+    const r = infSup(F(), F().a, d * 2.2);
+    const m = Math.max((r.hi - r.lo) * 0.2, 1e-9);
+    return { x0: F().a - 2.2 * d, x1: F().a + 2.2 * d, y0: r.lo - m, y1: r.hi + m };
+  }
+  plot.tools($('#ca-tools'), () => focus());
+  plot.onView = () => { if (S.follow) { S.follow = false; $('#ca-follow').checked = false; } };
+  $('#ca-follow').addEventListener('change', e => { S.follow = e.target.checked; if (S.follow) plot.animateTo(focus(), 450); });
+
+  plot.layers = [(c, p) => {
+    const f = F(), a = f.a, d = S.d, r = S.r;
+    p.vband(a - d, a + d, Theme.get('delta-fill'));
+    p.vline(a - d, Theme.get('delta'), [6, 4], 1.3); p.vline(a + d, Theme.get('delta'), [6, 4], 1.3);
+    if (r && isFinite(r.lo)) {
+      p.hband(r.lo, r.hi, Theme.get('cau-fill'), a - d, a + d);
+      p.hline(r.lo, Theme.get('cau'), [4, 4], 1.2); p.hline(r.hi, Theme.get('cau'), [4, 4], 1.2);
+    }
+    p.fn(f, { width: 1.8 });
+    p.marks(f);
+    if (r && isFinite(r.lo)) {
+      p.dot(r.xhi, r.hi, 6, Theme.get('plot-bg'), Theme.get('cau'));
+      p.dot(r.xlo, r.lo, 6, Theme.get('plot-bg'), Theme.get('cau'));
+      const lf = 'italic 14px "STIX Two Text", serif';
+      p.text('x′', p.X(r.xhi) + 8, p.Y(r.hi) - 12, { color: Theme.get('cau'), font: lf });
+      p.text('x″', p.X(r.xlo) + 8, p.Y(r.lo) + 14, { color: Theme.get('cau'), font: lf });
+      const X = p.w - 34, y1 = clamp(p.Y(r.hi), 4, p.h - 4), y0 = clamp(p.Y(r.lo), 4, p.h - 4);
+      c.strokeStyle = Theme.get('cau'); c.lineWidth = 2;
+      c.beginPath(); c.moveTo(X - 6, y1); c.lineTo(X, y1); c.lineTo(X, y0); c.lineTo(X - 6, y0); c.stroke();
+      p.text(`ω = ${fmt(r.hi - r.lo, 3)}`, X - 10, (y0 + y1) / 2, { align: 'right', color: Theme.get('cau') });
+    }
+  }];
+  wplot.layers = [(c, p) => {
+    p.polyline(S.curve, Theme.get('cau'), 2);
+    p.vline(S.d, Theme.get('delta'), [4, 3], 1.2);
+    if (S.r) p.dot(S.d, S.r.hi - S.r.lo, 4.5, Theme.get('cau'), Theme.get('plot-bg'));
+  }];
+
+  function setD(d) {
+    S.d = clamp(d, 1e-6, 2.4);
+    S.r = infSup(F(), F().a, S.d);
+    if (S.follow) plot.setView(focus());
+    wplot.request(); plot.request();
+    const w = S.r.hi - S.r.lo, f = F();
+    const lim = f.L !== null;
+    $('#ca-status').className = 'status ' + (lim ? 'ok' : 'bad');
+    $('#ca-status').innerHTML = `<p>窗口 0 &lt; |${M('x')} − ${M('a')}| &lt; ${fmt(S.d)} 内：sup ${M('f')} ≈ ${fmt(S.r.hi, 4)}，inf ${M('f')} ≈ ${fmt(S.r.lo, 4)}，<b>${M('ω')}(${M('δ')}) ≈ ${fmt(w, 4)}</b>。</p>`
+      + (lim ? `<p class="c-ok">${M('δ')} → 0 时 ${M('ω')} → 0：任给 ${M('ε')}，只要 ${M('ω')}(${M('δ')}) &lt; ${M('ε')}，窗口内任两点之差就 &lt; ${M('ε')}。Cauchy 条件成立 ⇒ 极限存在。</p>`
+        : `<p class="c-bad">${M('δ')} 再小，${M('ω')}(${M('δ')}) 也停在 ${fmt(w, 3)}：取 ${M('ε')}<sub>0</sub> ≤ ${fmt(w, 3)}，每个窗口里都有两点之差 ≥ ${M('ε')}<sub>0</sub>。Cauchy 条件失败 ⇒ 极限不存在。</p>`);
+  }
+  const fnSet = pressGroup($('#ca-fns'), '.chip', k => load(k));
+  function load(k) {
+    S.key = k; fnSet(k);
+    const c = CFG[k];
+    plot.home = { x0: c.view[0], x1: c.view[1], y0: c.view[2], y1: c.view[3] };
+    S.curve = [];
+    let ymax = 0.1;
+    for (let i = 0; i <= 140; i++) { const d = Math.pow(10, -6 + (Math.log10(2.5) + 6) * i / 140); const w = omega(FN[k], FN[k].a, d); S.curve.push([d, w]); ymax = Math.max(ymax, w); }
+    wplot.view = { x0: 1e-6, x1: 2.5, y0: -ymax * 0.06, y1: ymax * 1.4 };
+    sl.set(c.d);
+    S.follow = true; $('#ca-follow').checked = true;
+    setD(c.d);
+    plot.setView(focus());
+  }
+  Lab.open.cauchy = k => { load(k || 'xsin'); return root; };
+  load('sin1x');
+})();
+
+/* ---------- 3.3 两点博弈 ---------- */
+(() => {
+  const root = $('#pg-lab');
+  if (!root) return;
+  const plot = new Plot($('#pg-canvas'));
+  const gameEl = $('#pg-game');
+  const S = { key: 'sin1x', eps0: 1, g: null, picks: [] };
+  const F = () => FN[S.key];
+  const SCHED = [0.3, 0.04, 0.005, 6e-4, 7e-5];
+  const VIEWS = { sin1x: [-0.8, 0.8, -1.6, 1.6], sgn: [-1.5, 1.5, -1.6, 1.6], xsin: [-0.5, 0.5, -0.5, 0.5] };
+  const pips = (res, cur) => `<span class="pips">${SCHED.map((_, i) => `<i class="${res[i] ? 'win' : i === cur ? 'cur' : ''}"></i>`).join('')}</span>`;
+  const viewFor = d => {
+    const r = infSup(F(), 0, d * 1.7);
+    const m = Math.max((r.hi - r.lo) * 0.25, d * 0.2, 1e-9);
+    return { x0: -1.7 * d, x1: 1.7 * d, y0: r.lo - m, y1: r.hi + m };
+  };
+  plot.tools($('#pg-tools'), () => S.g && S.g.d ? viewFor(S.g.d) : null);
+  plot.clickCursor = () => S.g && S.g.started && !S.g.over ? 'crosshair' : 'grab';
+  plot.layers = [(c, p) => {
+    const f = F(), g = S.g;
+    if (g && g.d) {
+      p.vband(-g.d, g.d, Theme.get('delta-fill'));
+      p.vline(-g.d, Theme.get('delta'), [6, 4], 1.3); p.vline(g.d, Theme.get('delta'), [6, 4], 1.3);
+      p.text(`δ = ${fmt(g.d)}`, p.X(g.d) - 6, 52, { align: 'right', color: Theme.get('delta'), font: 'italic 14px "STIX Two Text", serif' });
+    }
+    p.fn(f, { width: 1.8 });
+    p.marks(f);
+    const lf = 'italic 15px "STIX Two Text", serif';
+    S.picks.forEach((x, i) => {
+      const y = f.f(x);
+      p.dot(x, y, 7, Theme.get('plot-bg'), Theme.get('cau'));
+      p.dot(x, y, 3, Theme.get('cau'));
+      p.text(i ? 'x″' : 'x′', p.X(x) + 9, p.Y(y) + (i ? 14 : -12), { color: Theme.get('cau'), font: lf });
+    });
+    if (S.picks.length === 2) {
+      const y1 = f.f(S.picks[0]), y2 = f.f(S.picks[1]), ok = Math.abs(y1 - y2) >= S.eps0;
+      const col = ok ? Theme.get('ok') : Theme.get('bad');
+      const X = p.w - 34, Y1 = p.Y(y1), Y2 = p.Y(y2);
+      p.hline(y1, Theme.get('cau'), [2, 3], 1); p.hline(y2, Theme.get('cau'), [2, 3], 1);
+      c.strokeStyle = col; c.lineWidth = 2.2;
+      c.beginPath(); c.moveTo(X - 6, Y1); c.lineTo(X, Y1); c.lineTo(X, Y2); c.lineTo(X - 6, Y2); c.stroke();
+      p.text(`|f(x′)−f(x″)| = ${fmt(Math.abs(y1 - y2), 3)}`, X - 10, (Y1 + Y2) / 2, { align: 'right', color: col });
+    }
+  }];
+  const epsIn = $('#pg-eps');
+  epsIn.addEventListener('input', () => { S.eps0 = +epsIn.value; $('#pg-eps-out').textContent = fmt(S.eps0); intro(); });
+  function intro() {
+    S.g = null; S.picks = [];
+    epsIn.disabled = false;
+    gameEl.innerHTML = `<div class="game-top"><b>两点博弈</b>${pips([], -1)}</div>
+      <div class="game-msg">你要证明：对 ${M('ε')}<sub>0</sub> = ${fmt(S.eps0)}，<em>每个</em> ${M('δ')} 的窗口里都有两点 ${M('x')}′, ${M('x')}″ 满足 |${M('f')}(${M('x')}′) − ${M('f')}(${M('x')}″)| ≥ ${M('ε')}<sub>0</sub>。电脑出 5 个越来越小的 ${M('δ')}。</div>
+      <div class="btns"><button class="btn primary" type="button" data-act="start">开始</button></div>`;
+    plot.animateTo({ x0: VIEWS[S.key][0], x1: VIEWS[S.key][1], y0: VIEWS[S.key][2], y1: VIEWS[S.key][3] }, 450);
+  }
+  function round() {
+    const g = S.g;
+    g.started = true; g.misses = 0; g.wait = false; S.picks = [];
+    const ds = omegaStar(F(), 0, S.eps0);
+    const sched = SCHED[g.r];
+    g.d = ds > 0 ? (ds === Infinity ? sched : Math.min(sched, ds * 0.9)) : sched;
+    g.valid = ds > 0;
+    plot.animateTo(viewFor(g.d), 650);
+    msg(`电脑给出 <span class="big c-delta">δ = ${fmt(g.d)}</span><br>在青色区域里点两次，依次选出 ${M('x')}′ 和 ${M('x')}″。`, '<button class="btn" type="button" data-act="quit">放弃</button>');
+  }
+  function msg(html, btns) {
+    const g = S.g;
+    gameEl.innerHTML = `<div class="game-top"><b>${g ? `第 ${Math.min(g.r + 1, SCHED.length)} 轮` : '两点博弈'}</b>${pips(g ? g.res : [], g ? g.r : -1)}</div><div class="game-msg">${html}</div><div class="btns">${btns || ''}</div>`;
+  }
+  plot.onClick = (wx, wy, px, py) => {
+    const g = S.g;
+    if (!g || !g.started || g.over || g.wait) return;
+    const x = snapToGraph(plot, F(), px, py, 0, g.d);
+    if (x === null) { $('.game-msg', gameEl).innerHTML = `这里不行：点必须在 0 &lt; |${M('x')}| &lt; ${M('δ')} 内（青色区域，且不是 0）。`; return; }
+    if (S.picks.length === 2) S.picks = [];
+    S.picks.push(x);
+    plot.request();
+    const f = F();
+    if (S.picks.length === 1) { $('.game-msg', gameEl).innerHTML = `已选 ${M('x')}′ = ${fmt(x, 6)}，${M('f')}(${M('x')}′) = ${fmt(f.f(x), 4)}。<br>再点第二个点 ${M('x')}″。`; return; }
+    const diff = Math.abs(f.f(S.picks[0]) - f.f(S.picks[1]));
+    if (diff >= S.eps0) {
+      g.res[g.r] = true; g.r++; g.wait = true;
+      if (g.r >= SCHED.length) {
+        g.over = true;
+        const formula = S.key === 'sin1x' ? `取 ${M('k')} &gt; 1/(2π${M('δ')})，${M('x')}′ = 1/(2${M('k')}π)，${M('x')}″ = 1/(π/2 + 2${M('k')}π)，差恰为 1。`
+          : S.key === 'sgn' ? `取 ${M('x')}′ = ${M('δ')}/2，${M('x')}″ = −${M('δ')}/2，差恰为 2。` : '';
+        msg(`<span class="c-ok">✓ 差 = ${fmt(diff, 4)} ≥ ${M('ε')}<sub>0</sub>。</span><br><br><b>五轮全胜。</b>写成证明时，把“点出来的两点”换成对任意 ${M('δ')} 都成立的公式：${formula}`, '<button class="btn primary" type="button" data-act="again">再来一局</button>');
+      } else msg(`<span class="c-ok">✓ |${M('f')}(${M('x')}′) − ${M('f')}(${M('x')}″)| = ${fmt(diff, 4)} ≥ ${M('ε')}<sub>0</sub>。这一轮你赢了。</span>`, '<button class="btn primary" type="button" data-act="next">下一轮（δ 更小）</button>');
+    } else {
+      g.misses++;
+      if (g.misses >= 3 && g.valid) {
+        g.over = true;
+        const w = omega(f, 0, g.d);
+        msg(`<b>电脑守住了。</b>这一轮 ${M('ω')}(${M('δ')}) ≈ ${fmt(w, 4)} &lt; ${M('ε')}<sub>0</sub>：窗口里<em>任意</em>两点之差都小于 ${M('ε')}<sub>0</sub>，你不可能赢。如果对每个 ${M('ε')}<sub>0</sub> 电脑都能这样防守，Cauchy 条件就成立，极限存在。`, '<button class="btn primary" type="button" data-act="again">重新开始</button>');
+      } else $('.game-msg', gameEl).innerHTML = `差 = ${fmt(diff, 4)} &lt; ${M('ε')}<sub>0</sub>，不够。再点两个点（第一下会重新开始选 ${M('x')}′）。`;
+    }
+  };
+  gameEl.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    const act = b.dataset.act;
+    if (act === 'start') { S.g = { r: 0, res: [] }; epsIn.disabled = true; round(); }
+    else if (act === 'next') round();
+    else if (act === 'again' || act === 'quit') intro();
+  });
+  const fnSet = pressGroup($('#pg-fns'), '.chip', k => { S.key = k; intro(); });
+  fnSet('sin1x');
+  intro();
+})();
+
+/* ===== 第 4 章关系图 + 第 5 章英文练习 ===== */
+(() => {
+  const wrap = $('#map');
+  if (!wrap) return;
+  const arrows = $$('.marrow', wrap), pfs = $$('#map-proof .pf');
+  function select(p) {
+    arrows.forEach(a => { const on = a.dataset.p === p; a.classList.toggle('on', on); $('path.vis', a).setAttribute('marker-end', on ? 'url(#ah-on)' : 'url(#ah)'); a.setAttribute('aria-pressed', String(on)); });
+    pfs.forEach(d => { d.hidden = d.dataset.p !== p; });
+  }
+  arrows.forEach(a => {
+    a.addEventListener('click', () => select(a.dataset.p));
+    a.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(a.dataset.p); } });
+  });
+})();
+
+(() => {
+  const list = $('#ex-list');
+  if (!list) return;
+  const EX = [
+    {
+      id: 'neg', topic: 'Quantifiers', type: 'mc',
+      q: 'Which statement is the <b>negation</b> of $\\lim_{x\\to a}f(x)=A$?',
+      opts: [
+        '$\\forall\\varepsilon>0\\ \\exists\\delta>0\\ \\exists x:\\ 0&lt;|x-a|&lt;\\delta$ and $|f(x)-A|\\ge\\varepsilon$',
+        '$\\exists\\varepsilon>0\\ \\forall\\delta>0\\ \\exists x:\\ 0&lt;|x-a|&lt;\\delta$ and $|f(x)-A|\\ge\\varepsilon$',
+        '$\\exists\\varepsilon>0\\ \\forall\\delta>0\\ \\forall x:\\ 0&lt;|x-a|&lt;\\delta\\Rightarrow|f(x)-A|\\ge\\varepsilon$',
+        '$\\exists\\varepsilon>0\\ \\exists\\delta>0\\ \\exists x:\\ |x-a|\\ge\\delta$ and $|f(x)-A|\\ge\\varepsilon$',
+      ],
+      ans: 1,
+      why: [
+        'The quantifiers $\\forall\\varepsilon\\,\\exists\\delta$ were not flipped. Negation turns every $\\forall$ into $\\exists$ and vice versa.',
+        'Correct. Push $\\neg$ through: $\\forall\\to\\exists$, $\\exists\\to\\forall$, $\\forall\\to\\exists$, and $\\neg(P\\Rightarrow Q)\\equiv P\\wedge\\neg Q$.',
+        'Too strong: this says <em>every</em> point near $a$ is bad. The negation only needs <em>one</em> bad point in each neighbourhood.',
+        'The condition $0&lt;|x-a|&lt;\\delta$ must stay unchanged; only the conclusion is negated. Points far from $a$ say nothing about the limit.',
+      ],
+    },
+    {
+      id: 'swap', topic: 'Quantifier order', type: 'mc',
+      q: 'What does $\\exists\\delta>0\\ \\forall\\varepsilon>0\\ \\forall x\\ \\big(0&lt;|x-a|&lt;\\delta\\Rightarrow|f(x)-A|&lt;\\varepsilon\\big)$ say about $f$?',
+      opts: ['It is equivalent to $\\lim_{x\\to a}f(x)=A$.', '$f(x)=A$ for every $x$ in some punctured neighbourhood of $a$.', '$f$ is continuous at $a$.', 'It is false for every function $f$.'],
+      ans: 1,
+      why: [
+        'Swapping $\\forall\\varepsilon$ and $\\exists\\delta$ changes the meaning: $\\delta$ can no longer depend on $\\varepsilon$.',
+        'Correct. For a fixed $x$, $|f(x)-A|&lt;\\varepsilon$ for <em>all</em> $\\varepsilon>0$ forces $f(x)=A$. So $f\\equiv A$ on $U^\\circ(a;\\delta)$.',
+        'The statement never mentions $f(a)$, so it cannot say anything about continuity at $a$.',
+        'A constant function $f\\equiv A$ satisfies it, so it is not always false.',
+      ],
+    },
+    {
+      id: 'lin', topic: 'Choosing δ', type: 'multi',
+      q: 'For $\\lim_{x\\to2}(3x-1)=5$, which choices of $\\delta$ work for <b>every</b> $\\varepsilon>0$? Select all that apply.',
+      opts: ['$\\delta=\\varepsilon$', '$\\delta=\\varepsilon/3$', '$\\delta=\\varepsilon/4$', '$\\delta=3\\varepsilon$', '$\\delta=\\min\\{1,\\varepsilon/3\\}$'],
+      ans: [1, 2, 4],
+      why: [
+        '$\\delta=\\varepsilon$ fails: $|(3x-1)-5|=3|x-2|$ can be close to $3\\varepsilon$.',
+        '$\\delta=\\varepsilon/3$ works: $3|x-2|&lt;3\\delta=\\varepsilon$.',
+        '$\\delta=\\varepsilon/4$ works: any smaller positive $\\delta$ also works.',
+        '$\\delta=3\\varepsilon$ fails: $3|x-2|$ can be close to $9\\varepsilon$.',
+        '$\\min\\{1,\\varepsilon/3\\}\\le\\varepsilon/3$, so it works too.',
+      ],
+    },
+    {
+      id: 'rec', topic: 'Constructing δ', type: 'recipe',
+      q: 'Find a formula $\\delta(\\varepsilon)$ that proves $\\lim_{x\\to3}x^2=9$. Type it below using <code>eps</code>, e.g. <code>min(1, eps/10)</code>. It will be tested on 360 values of $\\varepsilon\\in[10^{-6},10^{3}]$.',
+      dmax: e => -3 + Math.sqrt(9 + e),
+      sup: d => 6 * d + d * d,
+      sol: 'Scratch work: $|x^2-9|=|x-3|\\,|x+3|$. If $\\delta\\le1$ then $2&lt;x&lt;4$, so $|x+3|&lt;7$ and $|x^2-9|&lt;7\\delta$. Take $\\delta=\\min\\{1,\\varepsilon/7\\}$. (Any formula with $6\\delta+\\delta^2\\le\\varepsilon$ also works.)',
+    },
+    {
+      id: 'one', topic: 'Heine', type: 'mc',
+      q: 'True or false: if $f(1/n)\\to L$ as $n\\to\\infty$, then $\\lim_{x\\to0}f(x)=L$.',
+      opts: ['True', 'False'],
+      ans: 1,
+      why: [
+        'One sequence is not enough. Try $f(x)=\\sin\\frac{\\pi}{x}$: $f(1/n)=\\sin n\\pi=0$, yet the limit does not exist.',
+        'Correct. Heine requires <em>every</em> sequence $x_n\\to0$, $x_n\\ne0$. For $f(x)=\\sin\\frac{\\pi}{x}$, $f(1/n)=0$ but $x_n=\\frac{2}{4n+1}$ gives $f(x_n)=1$.',
+      ],
+    },
+    {
+      id: 'half', topic: 'Constructing sequences', type: 'seq',
+      q: 'Construct a sequence $x_n\\to0$ with $x_n\\ne0$ such that $\\sin\\dfrac{1}{x_n}\\to\\dfrac12$. Type $x_n$ as a formula in <code>n</code>.',
+      target: 0.5,
+      sol: 'Solve $\\sin t=\\frac12$: $t=\\frac\\pi6+2n\\pi$. So $x_n=\\dfrac{1}{\\pi/6+2n\\pi}$ gives $\\sin\\frac1{x_n}=\\frac12$ for every $n$. Also valid: $x_n=\\dfrac{1}{5\\pi/6+2n\\pi}$.',
+    },
+    {
+      id: 'cos', topic: 'Heine', type: 'mc',
+      q: 'To show $\\lim_{x\\to0}\\cos\\frac1x$ does not exist with Heine\'s criterion, which pair of sequences works?',
+      opts: ['$x_n=\\frac{1}{2n\\pi},\\ y_n=-\\frac{1}{2n\\pi}$', '$x_n=\\frac{1}{2n\\pi},\\ y_n=\\frac{1}{(2n+1)\\pi}$', '$x_n=\\frac{1}{2n\\pi},\\ y_n=\\frac{1}{4n\\pi}$', '$x_n=2n\\pi,\\ y_n=(2n+1)\\pi$'],
+      ans: 1,
+      why: [
+        '$\\cos$ is even, so both give $\\cos(\\pm 2n\\pi)=1$: the same limit, which proves nothing.',
+        'Correct. $\\cos(2n\\pi)=1$ and $\\cos((2n+1)\\pi)=-1$, both sequences tend to $0$ and avoid $0$.',
+        'Both give $\\cos(2n\\pi)=\\cos(4n\\pi)=1$: the same limit.',
+        'These sequences tend to $\\infty$, not to $0$.',
+      ],
+    },
+    {
+      id: 'exist', topic: 'Existence', type: 'multi',
+      q: 'Which of these limits <b>exist</b>? Select all that apply.',
+      opts: ['$\\lim_{x\\to0}x\\sin\\frac1x$', '$\\lim_{x\\to0}\\sin\\frac1x$', '$\\lim_{x\\to0}x^2\\cos\\frac1{x^2}$', '$\\lim_{x\\to0}\\operatorname{sgn}x$', '$\\lim_{x\\to0}\\frac{\\sin x}{x}$'],
+      ans: [0, 2, 4],
+      why: [
+        'Exists and equals $0$: $|x\\sin\\frac1x|\\le|x|$ (bounded × infinitesimal).',
+        'Does not exist: $x_n=\\frac1{2n\\pi}$ and $y_n=\\frac{1}{\\pi/2+2n\\pi}$ give limits $0$ and $1$.',
+        'Exists and equals $0$: $|x^2\\cos\\frac1{x^2}|\\le x^2$.',
+        'Does not exist: $\\frac1n\\to0$ gives $1$, $-\\frac1n\\to0$ gives $-1$.',
+        'Exists and equals $1$ — one of the two fundamental limits.',
+      ],
+    },
+    {
+      id: 'cneg', topic: 'Cauchy criterion', type: 'mc',
+      q: 'Which statement shows that $\\lim_{x\\to a}f(x)$ does <b>not</b> exist (the negation of the Cauchy criterion)?',
+      opts: [
+        '$\\exists\\varepsilon_0>0\\ \\forall\\delta>0\\ \\exists x\',x\'\'\\in U^\\circ(a;\\delta):\\ |f(x\')-f(x\'\')|\\ge\\varepsilon_0$',
+        '$\\forall\\varepsilon>0\\ \\exists\\delta>0\\ \\exists x\',x\'\'\\in U^\\circ(a;\\delta):\\ |f(x\')-f(x\'\')|\\ge\\varepsilon$',
+        '$\\exists\\varepsilon_0>0\\ \\exists\\delta>0\\ \\forall x\',x\'\'\\in U^\\circ(a;\\delta):\\ |f(x\')-f(x\'\')|\\ge\\varepsilon_0$',
+        'There exist $x\',x\'\'$ near $a$ with $f(x\')\\ne f(x\'\')$.',
+      ],
+      ans: 0,
+      why: [
+        'Correct. Note that no candidate value $A$ appears — that is the advantage of the Cauchy form.',
+        'Wrong quantifier pattern: the negation starts with $\\exists\\varepsilon_0$, not $\\forall\\varepsilon$.',
+        'Too strong (and impossible for $x\'=x\'\'$). We need bad pairs in <em>every</em> neighbourhood, not all pairs in one.',
+        'Almost every non-constant function has such points; this says nothing about the limit.',
+      ],
+    },
+    {
+      id: 'order', topic: 'Writing a proof', type: 'order',
+      q: 'Build the formal proof that $\\lim_{x\\to2}x^2=4$: click the steps in the correct order. One step does not belong in a formal proof.',
+      steps: [
+        'Let $\\varepsilon>0$ be given.',
+        'Choose $\\delta=\\min\\{1,\\varepsilon/5\\}$.',
+        'Suppose $0&lt;|x-2|&lt;\\delta$.',
+        'Since $\\delta\\le1$, we have $1&lt;x&lt;3$, so $|x+2|&lt;5$.',
+        'Then $|x^2-4|=|x-2|\\,|x+2|&lt;5|x-2|&lt;5\\delta\\le\\varepsilon$.',
+        'Hence $\\lim_{x\\to2}x^2=4$. $\\blacksquare$',
+      ],
+      distractor: 'Assume $|x^2-4|&lt;\\varepsilon$; then $|x-2|&lt;\\varepsilon/5$.',
+      sol: 'The order is: fix $\\varepsilon$ → choose $\\delta$ → take an arbitrary admissible $x$ → bound $|x+2|$ → chain of inequalities → conclusion. The step “Assume $|x^2-4|&lt;\\varepsilon$” assumes the conclusion; reasoning backwards belongs in scratch work only.',
+    },
+    {
+      id: 'compl', topic: 'Completeness', type: 'mc',
+      q: 'In the proof that the Cauchy criterion implies $\\lim_{x\\to a}f(x)$ exists, where is the <b>completeness of $\\mathbb R$</b> used?',
+      opts: ['To show that $\\{f(x_n)\\}$ is a Cauchy sequence for every $x_n\\to a$.', 'To conclude that the Cauchy sequence $\\{f(x_n)\\}$ converges.', 'To show that two sequences give the same limit, via interleaving.', 'To choose $\\delta$ for a given $\\varepsilon$.'],
+      ans: 1,
+      why: [
+        'This step only uses the Cauchy condition on $f$ and $x_n\\to a$; it works in $\\mathbb Q$ as well.',
+        'Correct. A Cauchy sequence of reals converges — that is completeness. In $\\mathbb Q$ this step fails.',
+        'Interleaving uses only the fact that subsequences of a convergent sequence share its limit.',
+        'Choosing $\\delta$ is given by the hypothesis; no completeness needed.',
+      ],
+    },
+    {
+      id: 'dir', topic: 'Heine', type: 'mc',
+      q: 'Let $D(x)=1$ for rational $x$ and $D(x)=0$ for irrational $x$. Which argument correctly shows $\\lim_{x\\to a}D(x)$ does not exist for every $a$?',
+      opts: [
+        '$D$ is not continuous anywhere, so the limit cannot exist.',
+        'Take rationals $r_n\\to a$ and irrationals $s_n\\to a$ with $r_n,s_n\\ne a$; then $D(r_n)\\to1$ and $D(s_n)\\to0$.',
+        'Take $x_n=a+\\frac1n$; then $D(x_n)$ does not converge.',
+        '$D$ takes only two values, so it has no limit.',
+      ],
+      ans: 1,
+      why: [
+        'Discontinuity alone does not rule out a limit: a removable discontinuity still has a limit.',
+        'Correct. Both sequences exist because $\\mathbb Q$ and $\\mathbb R\\setminus\\mathbb Q$ are dense; two different limits contradict Heine.',
+        'If $a$ is rational, $a+\\frac1n$ is always rational and $D(x_n)\\equiv1$ converges. The argument fails.',
+        'Taking finitely many values proves nothing: $\\operatorname{sgn}x$ takes three values, yet $\\lim_{x\\to5}\\operatorname{sgn}x=1$.',
+      ],
+    },
+  ];
+
+  let solved = new Set(storeGet('limlab-solved', []));
+  const save = () => storeSet('limlab-solved', [...solved]);
+  function progress() {
+    const n = EX.filter(e => solved.has(e.id)).length;
+    $('#ex-bar').style.width = `${n / EX.length * 100}%`;
+    $('#ex-count').textContent = `${n} / ${EX.length} solved`;
+  }
+  function mark(card, ex, ok) {
+    if (ok) { solved.add(ex.id); save(); }
+    card.classList.toggle('solved', solved.has(ex.id));
+    $('.tick', card).hidden = !solved.has(ex.id);
+    progress();
+  }
+  const shuffle = a => { const b = a.slice(); for (let i = b.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [b[i], b[j]] = [b[j], b[i]]; } return b; };
+
+  EX.forEach((ex, k) => {
+    const card = document.createElement('article');
+    card.className = 'ex';
+    card.id = 'ex-' + ex.id;
+    let body = '';
+    if (ex.type === 'mc' || ex.type === 'multi') {
+      body = `<div class="opts">${ex.opts.map((o, i) => `<button class="opt" type="button" data-i="${i}" aria-pressed="false"><span class="key">${String.fromCharCode(65 + i)}</span><span>${o}</span></button>`).join('')}</div>`;
+      if (ex.type === 'multi') body = '<p class="muted" style="font-size:var(--t-xs)">Select all that apply.</p>' + body;
+    } else if (ex.type === 'recipe') {
+      body = `<div class="recipe-input"><label for="exin-${ex.id}">δ(ε) =</label><input class="txt" id="exin-${ex.id}" type="text" spellcheck="false" autocomplete="off" placeholder="min(1, eps/7)"></div>`;
+    } else if (ex.type === 'seq') {
+      body = `<div class="recipe-input"><label for="exin-${ex.id}">xₙ =</label><input class="txt" id="exin-${ex.id}" type="text" spellcheck="false" autocomplete="off" placeholder="1/(... + 2n*pi)"></div>`;
+    } else if (ex.type === 'order') {
+      const items = shuffle([...ex.steps.map((s, i) => ({ i, s })), { i: -1, s: ex.distractor }]);
+      body = `<span class="order-cap">AVAILABLE STEPS</span><div class="order-pool">${items.map(it => `<button class="opt" type="button" data-i="${it.i}"><span>${it.s}</span></button>`).join('')}</div><span class="order-cap">YOUR PROOF</span><div class="order-built"></div>`;
+    }
+    const whys = ex.why ? ex.why.map((w, i) => `<div data-w="${i}" hidden><b>${String.fromCharCode(65 + i)}.</b> ${w}</div>`).join('') : '';
+    card.innerHTML = `<div class="ex-head"><span class="ex-no">${String(k + 1).padStart(2, '0')}</span><span class="ex-topic">${ex.topic}</span><span class="tick" hidden>✓ Solved</span></div>
+      <div class="ex-q">${ex.q}</div>${body}
+      <div class="ex-actions"><button class="btn primary" type="button" data-a="check">Check</button>${ex.sol ? '<button class="btn" type="button" data-a="sol">Show solution</button>' : ''}${ex.type === 'order' ? '<button class="btn" type="button" data-a="clear">Clear</button>' : ''}</div>
+      <div class="ex-fb" hidden><p class="fb-head"></p>${whys}</div>
+      ${ex.sol ? `<div class="ex-sol" hidden>${ex.sol}</div>` : ''}`;
+    list.appendChild(card);
+    mark(card, ex, false);
+    const fb = $('.ex-fb', card), head = $('.fb-head', fb);
+    const show = (cls, text, ws = []) => {
+      fb.hidden = false; fb.className = 'ex-fb ' + cls; head.innerHTML = text;
+      $$('[data-w]', fb).forEach(d => { d.hidden = !ws.includes(+d.dataset.w); });
+    };
+
+    if (ex.type === 'mc' || ex.type === 'multi') {
+      const opts = $$('.opt', card);
+      opts.forEach(o => o.addEventListener('click', () => {
+        if (ex.type === 'mc') opts.forEach(x => x.setAttribute('aria-pressed', String(x === o)));
+        else o.setAttribute('aria-pressed', String(o.getAttribute('aria-pressed') !== 'true'));
+        opts.forEach(x => x.classList.remove('right', 'wrong'));
+        fb.hidden = true;
+      }));
+    }
+    if (ex.type === 'order') {
+      const pool = $('.order-pool', card), built = $('.order-built', card);
+      card.addEventListener('click', e => {
+        const b = e.target.closest('.opt');
+        if (!b) return;
+        (b.parentElement === pool ? built : pool).appendChild(b);
+        fb.hidden = true;
+      });
+      card.addEventListener('click', e => {
+        if (e.target.closest('[data-a="clear"]')) { $$('.opt', built).forEach(b => pool.appendChild(b)); fb.hidden = true; }
+      });
+    }
+    $('[data-a="check"]', card).addEventListener('click', () => {
+      if (ex.type === 'mc') {
+        const sel = $$('.opt', card).findIndex(o => o.getAttribute('aria-pressed') === 'true');
+        if (sel < 0) { show('info', 'Pick an option first.'); return; }
+        const ok = sel === ex.ans;
+        $$('.opt', card)[sel].classList.add(ok ? 'right' : 'wrong');
+        show(ok ? 'ok' : 'bad', ok ? '✓ Correct.' : '✗ Not quite.', [sel]);
+        mark(card, ex, ok);
+      } else if (ex.type === 'multi') {
+        const sel = $$('.opt', card).map((o, i) => o.getAttribute('aria-pressed') === 'true' ? i : -1).filter(i => i >= 0);
+        if (!sel.length) { show('info', 'Select at least one option.'); return; }
+        const wrong = [];
+        ex.opts.forEach((_, i) => { const want = ex.ans.includes(i), got = sel.includes(i); if (want !== got) wrong.push(i); });
+        $$('.opt', card).forEach((o, i) => { if (sel.includes(i)) o.classList.add(ex.ans.includes(i) ? 'right' : 'wrong'); });
+        const ok = wrong.length === 0;
+        show(ok ? 'ok' : 'bad', ok ? '✓ Correct — all of them, and nothing else.' : `✗ ${wrong.length} option${wrong.length > 1 ? 's are' : ' is'} misjudged:`, ok ? ex.ans : wrong);
+        mark(card, ex, ok);
+      } else if (ex.type === 'recipe') {
+        const inp = $('input', card);
+        let fn;
+        try { fn = Expr.compile(inp.value, ['eps']); fn({ eps: 1 }); } catch (_) { inp.classList.add('err'); show('bad', 'Could not read that formula. Use <code>eps</code>, numbers, + − * / ^, min, max, sqrt and parentheses.'); return; }
+        inp.classList.remove('err');
+        let first = null, fails = 0;
+        for (let i = 0; i < 360; i++) {
+          const e = Math.pow(10, -6 + 9 * i / 359);
+          let d; try { d = fn({ eps: e }); } catch (_) { d = NaN; }
+          if (!(d > 0 && isFinite(d) && d <= ex.dmax(e) * (1 + 1e-9))) { fails++; if (!first) first = { e, d }; }
+        }
+        if (!first) { show('ok', '✓ Passed all 360 tests. Now write the inequality chain that proves it for every ε — the numerical test is only evidence.'); mark(card, ex, true); }
+        else {
+          const { e, d } = first;
+          const msg = !(d > 0 && isFinite(d)) ? `At ε = ${fmt(e)} your δ is ${fmt(d)}, which is not a positive number.`
+            : `At ε = ${fmt(e)} your δ = ${fmt(d)}, but for x = 3 + δ (approached from inside) |x² − 9| reaches 6δ + δ² = ${fmt(ex.sup(d))} ≥ ε.`;
+          show('bad', `✗ Failed for ${fails} of 360 values of ε. ${msg} ${e > 1 ? 'Large ε are the problem — remember to cap δ.' : 'Try a smaller constant.'}`);
+        }
+      } else if (ex.type === 'seq') {
+        const inp = $('input', card);
+        let fn;
+        try { fn = Expr.compile(inp.value, ['n']); } catch (_) { inp.classList.add('err'); show('bad', 'Could not read that formula. Use <code>n</code>, <code>pi</code>, numbers, + − * / ^, sqrt, arcsin and parentheses.'); return; }
+        inp.classList.remove('err');
+        let zero = false, nan = false, maxTail = 0, maxMid = 0, errMax = 0;
+        for (let n = 1; n <= 4000; n++) {
+          const x = fn({ n });
+          if (!isFinite(x)) { nan = true; break; }
+          if (x === 0) zero = true;
+          if (n >= 2000) { maxTail = Math.max(maxTail, Math.abs(x)); errMax = Math.max(errMax, Math.abs(Math.sin(1 / x) - ex.target)); }
+          if (n >= 500 && n <= 1000) maxMid = Math.max(maxMid, Math.abs(x));
+        }
+        if (nan) show('bad', '✗ Some terms are undefined.');
+        else if (zero) show('bad', '✗ Some term equals 0, but Heine\'s criterion needs x<sub>n</sub> ≠ 0.');
+        else if (!(maxTail < 0.05 && maxTail <= maxMid * 0.85)) show('bad', `✗ Your sequence does not seem to tend to 0 (|x<sub>n</sub>| is still about ${fmt(maxTail, 3)} for n ≈ 4000).`);
+        else if (errMax > 1e-4) show('bad', `✗ x<sub>n</sub> → 0, but sin(1/x<sub>n</sub>) does not approach 1/2: for 2000 ≤ n ≤ 4000 it is off by up to ${fmt(errMax, 3)}.`);
+        else { show('ok', '✓ x<sub>n</sub> → 0, x<sub>n</sub> ≠ 0, and sin(1/x<sub>n</sub>) → 1/2. Combined with x<sub>n</sub> = 1/(2nπ) (giving 0), this proves the limit does not exist.'); mark(card, ex, true); }
+      } else if (ex.type === 'order') {
+        const ids = $$('.order-built .opt', card).map(b => +b.dataset.i);
+        if (!ids.length) { show('info', 'Click steps to add them to your proof.'); return; }
+        if (ids.includes(-1)) { show('bad', '✗ Your proof contains a step that assumes the conclusion (“Assume |x² − 4| < ε …”). That is scratch work, not proof.'); return; }
+        const pos = ids.findIndex((v, i) => v !== i);
+        if (pos === -1 && ids.length === ex.steps.length) { show('ok', '✓ A complete, correctly ordered proof.'); mark(card, ex, true); }
+        else if (pos === -1) show('info', `So far so good — ${ex.steps.length - ids.length} step(s) still missing.`);
+        else show('bad', `✗ Step ${pos + 1} is out of place. Think: what must be fixed before you can talk about it?`);
+      }
+    });
+    const solBtn = $('[data-a="sol"]', card);
+    if (solBtn) solBtn.addEventListener('click', () => { const s = $('.ex-sol', card); s.hidden = !s.hidden; solBtn.textContent = s.hidden ? 'Show solution' : 'Hide solution'; });
+  });
+  $('#ex-reset').addEventListener('click', () => {
+    solved = new Set(); save();
+    $$('.ex', list).forEach((c, i) => mark(c, EX[i], false));
+  });
+  progress();
+})();
+
+/* ===== 页面胶水：导航高亮、跨实验台跳转、字体与公式加载后的重绘 ===== */
+(() => {
+  const links = $$('.toc a');
+  const secs = links.map(a => $(a.getAttribute('href'))).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(es => {
+      es.forEach(e => {
+        if (!e.isIntersecting) return;
+        links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
+      });
+    }, { rootMargin: '-45% 0px -50% 0px' });
+    secs.forEach(s => io.observe(s));
+  }
+  document.addEventListener('click', e => {
+    const b = e.target.closest('[data-open]');
+    if (!b) return;
+    const [name, arg] = b.dataset.open.split(':');
+    const fn = Lab.open[name];
+    if (!fn) return;
+    const el = fn(arg);
+    if (el) el.scrollIntoView({ behavior: REDUCED ? 'auto' : 'smooth', block: 'start' });
+  });
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => Plot.all.forEach(p => p.request()));
+  Lab.on('mathjax', () => Plot.all.forEach(p => p.resize()));
+})();
+</script>
+</body>
+</html>
